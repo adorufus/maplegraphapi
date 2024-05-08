@@ -5,9 +5,13 @@ namespace App\Console\Commands;
 use App\Models\GraphCalculatedData;
 use App\Models\TokenStorage;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use App\Services\FirebaseService;
+use GuzzleHttp\Promise\Utils;
 use DB;
 
 class GraphCron extends Command
@@ -28,7 +32,8 @@ class GraphCron extends Command
 
     protected $graph_calculated_model;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->graph_calculated_model = new GraphCalculatedData;
     }
@@ -43,52 +48,80 @@ class GraphCron extends Command
         set_time_limit(3600);
 
         $output = new \Symfony\Component\Console\Output\ConsoleOutput();
-        $tokenStorage = TokenStorage::get();
 
-        $url = "https://graph.facebook.com/v18.0/17841451302689754/media?limit=200&access_token={$tokenStorage[0]['token']}&pretty=1&fields=id%2Ccaption%2Clike_count%2Ccomments_count%2Cusername%2Cmedia_product_type%2Cmedia_type%2Cowner%2Cpermalink%2Cmedia_url%2Cchildren%7Bmedia_url%7D";
 
-        $response = Http::get($url);
+        try {
+            $client = new Client();
+            $tokenStorage = TokenStorage::get();
+            $url = "https://graph.facebook.com/v18.0/17841451302689754/media?limit=200&access_token={$tokenStorage[0]['token']}&pretty=1&fields=id%2Ccaption%2Clike_count%2Ccomments_count%2Cusername%2Cmedia_product_type%2Cmedia_type%2Cowner%2Cpermalink%2Cmedia_url%2Cchildren%7Bmedia_url%7D";
 
-        if ($response->failed()) {
-            var_dump($response->body());
+            $client->getAsync($url)->then(function ($response) use ($tokenStorage) {
 
-            return response()->json(['error']);
+                $decoded = json_decode($response->getBody(), true);
 
-        }
+                print_r($decoded);
 
-        $graphData = $response->json()['data'];
+                $graphData = $decoded['data'];
+                // // Check if there is a "next" pagination link
+                if (isset($decoded['paging']['next'])) {
+                    $nextUrl = $decoded['paging']['next'];
+                    $noMoreUrl = false;
+                    $count = 0;
+                    while ($nextUrl) {
 
-        $nextUrl = $response->json()['paging']['next'];
+                        try {
+                            $nextClient = new Client();
+                            $nextClient->getAsync($nextUrl)->then(
+                                function ($response) use (&$graphData, &$noMoreUrl, &$nextUrl, &$count) {
+                                    $nextResponse = json_decode($response->getBody(), true);
 
-        // // Check if there is a "next" pagination link
-        if (isset($response->json()['paging']['next'])) {
-            $nextUrl = $response->json()['paging']['next'];
+                                    $nextData = $nextResponse['data'];
 
-            while ($nextUrl) {
-                $nextResponse = Http::get($nextUrl);
+                                    $graphData = array_merge($graphData, $nextData);
 
-                if ($nextResponse->successful()) {
-                    $nextData = $nextResponse->json()['data'];
+                                    if (isset($nextResponse['paging']['next'])) {
+                                        $nextUrl = $nextResponse['paging']['next'];
+                                        $count = $count += 1;
+                                        echo $count;
+                                    } else {
+                                        $noMoreUrl = true;
+                                    }
+                                },
+                                function (RequestException $re) use (&$noMoreUrl) {
+                                    $noMoreUrl = true;
+                                }
+                            )->wait();
+                        } catch (GuzzleException $ge) {
+                            echo $ge->getMessage();
+                            break;
+                        }
 
-                    $graphData = array_merge($graphData, $nextData);
-
-                    if (isset($nextResponse->json()['paging']['next'])) {
-                        $nextUrl = $nextResponse->json()['paging']['next'];
-                        $output->writeln($nextUrl);
-                    } else {
-                        $output->writeln('stopped, no more url');
-                        break;
+                        if($noMoreUrl) {
+                            break;
+                        }
                     }
-                    
-                } else {
-                    print_r($nextResponse->status());
-                    info($nextUrl);
-                    break;
                 }
-            }
+
+                $this->calculateGraphData($graphData, $tokenStorage[0]['token']);
+
+            }, function (RequestException $re) {
+                echo $re->getMessage();
+            })->wait();
+
+        } catch (GuzzleException $ge) {
+            echo $ge->getMessage();
         }
 
-        $this->calculateGraphData($graphData, $tokenStorage[0]['token']);
+//        $response = Utils::unwrap($promise);
+//
+//        var_dump($response);
+//
+//        if(array_key_exists('error', $response)){
+//            echo implode($response);
+//        }
+//        else {
+//
+//        }
     }
 
     protected function calculateGraphData($data, $token)
@@ -107,20 +140,26 @@ class GraphCron extends Command
             if ($data[$i]['media_type'] == 'VIDEO') {
                 var_dump($i);
                 $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
+                $client = new Client();
 
-                $response = Http::get("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}");
+                try {
+                    $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
+                        function ($response) use (&$insightData, $data, $i) {
 
-                // print_r($response->json());
+                            $decoded = json_decode($response->getBody(), true);
 
-                if ($response->successful()) {
-                    array_push($insightData, [
-                        "media_id" => $data[$i]['id'],
-                        "data" => $response->json()['data']
-                    ]);
+                            $insightData[] = [
+                                "media_id" => $data[$i]['id'],
+                                "data" => $decoded['data']
+                            ];
 
-                } else if ($response->failed()) {
-                    print_r('something went wrong');
-                    print_r($response->status());
+                        },
+                        function (RequestException $re) {
+                            echo $re->getMessage();
+                        }
+                    )->wait();
+                } catch (GuzzleException $ge) {
+                    echo $ge->getMessage();
                 }
             }
         }
@@ -158,7 +197,7 @@ class GraphCron extends Command
 
         DB::beginTransaction();
         try {
-        
+
             $this->graph_calculated_model->create($total);
 
             DB::commit();
