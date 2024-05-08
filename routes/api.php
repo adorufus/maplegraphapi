@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InstagramGraphApiController;
+use App\Http\Controllers\GetMetricsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,5 @@ use App\Http\Controllers\InstagramGraphApiController;
 Route::prefix('v1')->group(function () {
     Route::post('/uploadIgAuthToken', [InstagramGraphApiController::class, 'uploadIgAuthToken']);
     Route::get('/getIgMedia', [InstagramGraphApiController::class, 'getIgMedia']);
+    Route::get('/getMetrics', [GetMetricsController::class, 'getMetrics']);
 });
