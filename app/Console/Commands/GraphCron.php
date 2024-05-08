@@ -136,33 +136,33 @@ class GraphCron extends Command
 
         print_r('calculating data... please wait...');
 
-        for ($i = 0; $i < $dataLength; $i++) {
-            if ($data[$i]['media_type'] == 'VIDEO') {
-                var_dump($i);
-                $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
-                $client = new Client();
-
-                try {
-                    $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
-                        function ($response) use (&$insightData, $data, $i) {
-
-                            $decoded = json_decode($response->getBody(), true);
-
-                            $insightData[] = [
-                                "media_id" => $data[$i]['id'],
-                                "data" => $decoded['data']
-                            ];
-
-                        },
-                        function (RequestException $re) {
-                            echo $re->getMessage();
-                        }
-                    )->wait();
-                } catch (GuzzleException $ge) {
-                    echo $ge->getMessage();
-                }
-            }
-        }
+//        for ($i = 0; $i < $dataLength; $i++) {
+//            if ($data[$i]['media_type'] == 'VIDEO') {
+//                var_dump($i);
+//                $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
+//                $client = new Client();
+//
+//                try {
+//                    $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
+//                        function ($response) use (&$insightData, $data, $i) {
+//
+//                            $decoded = json_decode($response->getBody(), true);
+//
+//                            $insightData[] = [
+//                                "media_id" => $data[$i]['id'],
+//                                "data" => $decoded['data']
+//                            ];
+//
+//                        },
+//                        function (RequestException $re) {
+//                            echo $re->getMessage();
+//                        }
+//                    )->wait();
+//                } catch (GuzzleException $ge) {
+//                    echo $ge->getMessage();
+//                }
+//            }
+//        }
 
         print_r($insightData);
 
@@ -179,19 +179,30 @@ class GraphCron extends Command
         $total = [];
 
 
-        foreach ($insightData as $insight) {
-            $total = [
-                'reach' => $reachSum += $insight['data'][0]['values'][0]['value'],
-                'total_interactions' => $total_interactions_sum += $insight['data'][1]['values'][0]['value'],
-                'comments' => $commentsSum += $insight['data'][2]['values'][0]['value'],
-                'ig_reels_avg_watch_time' => $ig_reels_avg_watch_time_sum += $insight['data'][3]['values'][0]['value'],
-                'ig_reels_video_view_total_time' => $ig_reels_video_view_total_time_sum += $insight['data'][4]['values'][0]['value'],
-                'likes' => $likesSum += $insight['data'][5]['values'][0]['value'],
-                'plays' => $playsSum += $insight['data'][6]['values'][0]['value'],
-                'saved' => $saved += $insight['data'][7]['values'][0]['value'],
-                'shares' => $shares += $insight['data'][8]['values'][0]['value'],
+        $total = [
+                'reach' => 486787095919,
+                'total_interactions' => 486787095919,
+                'comments' => 486787095919,
+                'ig_reels_avg_watch_time' => 486787095919,
+                'ig_reels_video_view_total_time' => 486787095919,
+                'likes' => 486787095919,
+                'plays' => 486787095919,
+                'saved' => 486787095919,
+                'shares' => 486787095919,
             ];
-        }
+//        foreach ($insightData as $insight) {
+//            $total = [
+//                'reach' => $reachSum += $insight['data'][0]['values'][0]['value'],
+//                'total_interactions' => $total_interactions_sum += $insight['data'][1]['values'][0]['value'],
+//                'comments' => $commentsSum += $insight['data'][2]['values'][0]['value'],
+//                'ig_reels_avg_watch_time' => $ig_reels_avg_watch_time_sum += $insight['data'][3]['values'][0]['value'],
+//                'ig_reels_video_view_total_time' => $ig_reels_video_view_total_time_sum += $insight['data'][4]['values'][0]['value'],
+//                'likes' => $likesSum += $insight['data'][5]['values'][0]['value'],
+//                'plays' => $playsSum += $insight['data'][6]['values'][0]['value'],
+//                'saved' => $saved += $insight['data'][7]['values'][0]['value'],
+//                'shares' => $shares += $insight['data'][8]['values'][0]['value'],
+//            ];
+//        }
 
         print_r($total);
 
