@@ -20,4 +20,16 @@ class GraphCalculatedData extends Model
         'saved',
         'shares',
     ];
+
+    protected $cast = [
+        'reach' => 'integer',
+        'total_interactions' => 'integer',
+        'comments' => 'integer',
+        'ig_reels_avg_watch_time' => 'integer',
+        'ig_reels_video_view_total_time' => 'integer',
+        'likes' => 'integer',
+        'plays' => 'integer',
+        'saved' => 'integer',
+        'shares' => 'integer',
+    ];
 }
