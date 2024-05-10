@@ -16,15 +16,15 @@ return new class extends Migration
         Schema::create('graph_calculated_data', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->bigInteger('reach');
-            $table->bigInteger('total_interactions');
-            $table->bigInteger('comments');
-            $table->bigInteger('ig_reels_avg_watch_time');
-            $table->bigInteger('ig_reels_video_view_total_time');
-            $table->bigInteger('likes');
-            $table->bigInteger('plays');
-            $table->bigInteger('saved');
-            $table->bigInteger('shares');
+            $table->bigInteger('reach')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('total_interactions')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('comments')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('ig_reels_avg_watch_time')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('ig_reels_video_view_total_time')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('likes')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('plays')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('saved')->collation('utf8mb4_unicode_ci')->change();
+            $table->bigInteger('shares')->collation('utf8mb4_unicode_ci')->change();
         });
     }
 
