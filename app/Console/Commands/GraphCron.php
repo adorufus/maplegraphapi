@@ -13,6 +13,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Promise\Utils;
+use Google\Cloud\Firestore\FirestoreClient;
 
 class GraphCron extends Command
 {
@@ -29,6 +30,7 @@ class GraphCron extends Command
      * @var string
      */
     protected $description = 'Loop Graph Media Daily every minutes';
+    protected $firestore;
 
     protected $graph_calculated_model;
 
@@ -36,6 +38,7 @@ class GraphCron extends Command
     {
         parent::__construct();
         $this->graph_calculated_model = new GraphCalculatedData;
+        $this->firestore = new FirestoreClient();
     }
 
     /**
@@ -195,15 +198,24 @@ class GraphCron extends Command
 
         print_r($total);
 
-        DB::beginTransaction();
         try {
+            $collectionRef = $this->firestore->collection('metrics');
+            $docRef = $collectionRef->document('data');
+            $docRef->set($total);
 
-            $this->graph_calculated_model->create($total);
-
-            DB::commit();
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            DB::rollBack();
+            print_r($e->getMessage());
         }
+
+//        DB::beginTransaction();
+//        try {
+//
+//            $this->graph_calculated_model->create($total);
+//
+//            DB::commit();
+//        } catch (Exception $e) {
+//            var_dump($e->getMessage());
+//            DB::rollBack();
+//        }
     }
 }
