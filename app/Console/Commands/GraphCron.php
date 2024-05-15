@@ -30,7 +30,7 @@ class GraphCron extends Command
      * @var string
      */
     protected $description = 'Loop Graph Media Daily every minutes';
-    protected $firestore;
+    protected FirestoreClient $firestore;
 
     protected $graph_calculated_model;
 
@@ -39,6 +39,30 @@ class GraphCron extends Command
         parent::__construct();
         $this->graph_calculated_model = new GraphCalculatedData;
         $this->firestore = new FirestoreClient();
+    }
+
+    public function segmentedMetrics($data): void
+    {
+        $hastagRegex = '/#(Rewind|TrickRoom|Wander|BreakingBadNews|CAN!|DIXI|Unscene|PlayRoom|ASMR|JikaKukuhMenjadi|CAN)\b/i';
+        $captions = [];
+        $allHastags = [];
+
+
+        foreach ($data as $d) {
+            $captions[] = $d['caption'];
+        }
+
+        foreach ($captions as $caption) {
+            preg_match_all($hastagRegex, $caption, $matches);
+
+            if(!empty($matches[0])){
+                $allHastags = array_merge($allHastags, $matches[0]);
+            }
+        }
+
+        $allHastags = array_unique($allHastags);
+
+        print_r($allHastags);
     }
 
     /**
@@ -61,8 +85,6 @@ class GraphCron extends Command
             $client->getAsync($url)->then(function ($response) use ($tokenStorage) {
 
                 $decoded = json_decode($response->getBody(), true);
-
-                print_r($decoded);
 
                 $graphData = $decoded['data'];
                 // // Check if there is a "next" pagination link
@@ -139,8 +161,16 @@ class GraphCron extends Command
 
         print_r('calculating data... please wait...');
 
+//        foreach ($mediaData as $data) {
+//            print_r($data);
+//            $captions[] = $data["caption"];
+//        }
+
         for ($i = 0; $i < $dataLength; $i++) {
             if ($data[$i]['media_type'] == 'VIDEO') {
+
+                $this->segmentedMetrics($data);
+
                 var_dump($i);
                 $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
                 $client = new Client();
