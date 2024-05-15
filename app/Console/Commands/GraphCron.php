@@ -41,7 +41,7 @@ class GraphCron extends Command
         $this->firestore = new FirestoreClient();
     }
 
-    public function segmentedMetrics($data): void
+    public function segmentedMetrics($data): array
     {
         $hastagRegex = '/#(Rewind|TrickRoom|Wander|BreakingBadNews|CAN!|DIXI|Unscene|PlayRoom|ASMR|JikaKukuhMenjadi|CAN)\b/i';
         $captions = [];
@@ -63,6 +63,8 @@ class GraphCron extends Command
         $allHastags = array_unique($allHastags);
 
         print_r($allHastags);
+        
+        return $allHastags;
     }
 
     /**
@@ -155,6 +157,17 @@ class GraphCron extends Command
 
         $insightData = [];
 
+        $rewindInsightData = [];
+        $bbnInsightData = [];
+        $jkmInsightData = [];
+        $dixiInsightData = [];
+        $wanderInsightData = [];
+        $asmrInsightData = [];
+        $canInsightData = [];
+        $trickroomInsightData = [];
+        $unsceneInsightData = [];
+        $playroomInsightData = [];
+
         $baseUrl = 'https://graph.facebook.com/v18.0';
 
         $metric = 'impressions,reach,video_views,total_interactions,saved,comments,likes';
@@ -169,36 +182,132 @@ class GraphCron extends Command
         for ($i = 0; $i < $dataLength; $i++) {
             if ($data[$i]['media_type'] == 'VIDEO') {
 
-                $this->segmentedMetrics($data);
+                $segments = $this->segmentedMetrics($data);
 
                 var_dump($i);
                 $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
                 $client = new Client();
 
                 try {
-                    $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
-                        function ($response) use (&$insightData, $data, $i) {
+                    $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $insightData);
+                } catch (GuzzleException $ge) {
+                    echo $ge->getMessage();
+                }
 
-                            $decoded = json_decode($response->getBody(), true);
+                try {
+                    $caption = $data[$i]['caption'];
 
-                            $insightData[] = [
-                                "media_id" => $data[$i]['id'],
-                                "data" => $decoded['data']
-                            ];
+                    if($caption) {
+                        if(str_contains($caption, $segments[0]) && str_contains($caption, $segments[194])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $rewindInsightData);
 
-                        },
-                        function (RequestException $re) {
-                            echo $re->getMessage();
+                            echo "rewind";
                         }
-                    )->wait();
+
+                        if(str_contains($caption, $segments[3])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $bbnInsightData);
+
+                            echo "bbn";
+                        }
+
+                        if(str_contains($caption, $segments[5])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $jkmInsightData);
+
+                            echo "jkm";
+                        }
+
+                        if(str_contains($caption, $segments[14]) && str_contains($caption, $segments[414])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $dixiInsightData);
+
+                            echo "dixi";
+                        }
+
+                        if(str_contains($caption, $segments[17]) && str_contains($caption, $segments[444])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $wanderInsightData);
+
+                            echo "wander";
+                        }
+
+                        if(str_contains($caption, $segments[22])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $asmrInsightData);
+
+                            echo "asmr";
+                        }
+
+                        if(str_contains($caption, $segments[24]) && str_contains($caption, $segments[138] && str_contains($caption, $segments[170]))){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $trickroomInsightData);
+
+                            echo "trickroom";
+                        }
+
+                        if(str_contains($caption, $segments[43])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $canInsightData);
+
+                            echo "can";
+                        }
+
+                        if(str_contains($caption, $segments[297]) && str_contains($caption, $segments[299])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $unsceneInsightData);
+                            echo "unscene";
+                        }
+
+                        if(str_contains($caption, $segments[500]) && str_contains($caption, $segments[621])){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $playroomInsightData);
+
+                            echo "playroom";
+                        }
+                    }
                 } catch (GuzzleException $ge) {
                     echo $ge->getMessage();
                 }
             }
         }
 
-        print_r($insightData);
+        $compiledSegmentsInsights['rewind'] = $rewindInsightData;
+        $compiledSegmentsInsights['bbn'] = $bbnInsightData;
+        $compiledSegmentsInsights['jkm'] = $jkmInsightData;
+        $compiledSegmentsInsights['dixi'] = $dixiInsightData;
+        $compiledSegmentsInsights['wander'] = $wanderInsightData;
+        $compiledSegmentsInsights['asmr'] = $asmrInsightData;
+        $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
+        $compiledSegmentsInsights['can'] = $canInsightData;
+        $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
+        $compiledSegmentsInsights['playroom'] = $playroomInsightData;
 
+        $this->calcAndSendToFirebase($insightData, 'data');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+
+//        DB::beginTransaction();
+//        try {
+//
+//            $this->graph_calculated_model->create($total);
+//
+//            DB::commit();
+//        } catch (Exception $e) {
+//            var_dump($e->getMessage());
+//            DB::rollBack();
+//        }
+    }
+
+    function calcAndSendToFirebase($insightData, $type) {
         $reachSum = 0;
         $total_interactions_sum = 0;
         $commentsSum = 0;
@@ -230,22 +339,29 @@ class GraphCron extends Command
 
         try {
             $collectionRef = $this->firestore->collection('metrics');
-            $docRef = $collectionRef->document('data');
+            $docRef = $collectionRef->document($type);
             $docRef->set($total);
 
         } catch (Exception $e) {
             print_r($e->getMessage());
         }
+    } 
 
-//        DB::beginTransaction();
-//        try {
-//
-//            $this->graph_calculated_model->create($total);
-//
-//            DB::commit();
-//        } catch (Exception $e) {
-//            var_dump($e->getMessage());
-//            DB::rollBack();
-//        }
+    function getInsightData ($baseUrl, $data, $i, $metric, $token, $client, &$insightDataVar) {
+        $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
+            function ($response) use (&$insightDataVar, $data, $i) {
+
+                $decoded = json_decode($response->getBody(), true);
+
+                $insightDataVar[] = [
+                    "media_id" => $data[$i]['id'],
+                    "data" => $decoded['data']
+                ];
+
+            },
+            function (RequestException $re) {
+                echo $re->getMessage();
+            }
+        )->wait();;
     }
 }
