@@ -198,60 +198,60 @@ class GraphCron extends Command
                     $caption = $data[$i]['caption'];
 
                     if($caption) {
-                        if(str_contains($caption, $segments[0]) && str_contains($caption, $segments[194])){
+                        if(str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $rewindInsightData);
 
                             echo "rewind";
                         }
 
-                        if(str_contains($caption, $segments[3])){
+                        if(str_contains($caption, '#BreakingBadNews')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $bbnInsightData);
 
                             echo "bbn";
                         }
 
-                        if(str_contains($caption, $segments[5])){
+                        if(str_contains($caption, '#JikaKukuhMenjadi')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $jkmInsightData);
 
                             echo "jkm";
                         }
 
-                        if(str_contains($caption, $segments[14]) && str_contains($caption, $segments[414])){
+                        if(str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $dixiInsightData);
 
                             echo "dixi";
                         }
 
-                        if(str_contains($caption, $segments[17]) && str_contains($caption, $segments[444])){
+                        if(str_contains($caption, '#Wander') || str_contains($caption, '#wander')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $wanderInsightData);
 
                             echo "wander";
                         }
 
-                        if(str_contains($caption, $segments[22])){
+                        if(str_contains($caption, '#ASMR')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $asmrInsightData);
 
                             echo "asmr";
                         }
 
-                        if(str_contains($caption, $segments[24]) && str_contains($caption, $segments[138] && str_contains($caption, $segments[170]))){
+                        if(str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $trickroomInsightData);
 
                             echo "trickroom";
                         }
 
-                        if(str_contains($caption, $segments[43])){
+                        if(str_contains($caption, '#CAN')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $canInsightData);
 
                             echo "can";
                         }
 
-                        if(str_contains($caption, $segments[297]) && str_contains($caption, $segments[299])){
+                        if(str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $unsceneInsightData);
                             echo "unscene";
                         }
 
-                        if(str_contains($caption, $segments[500]) && str_contains($caption, $segments[621])){
+                        if(str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')){
                             $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $playroomInsightData);
 
                             echo "playroom";
@@ -335,13 +335,14 @@ class GraphCron extends Command
             ];
         }
 
+        $total['media_count'] = count($insightData);
+
         print_r($total);
 
         try {
             $collectionRef = $this->firestore->collection('metrics');
             $docRef = $collectionRef->document($type);
             $docRef->set($total);
-
         } catch (Exception $e) {
             print_r($e->getMessage());
         }
