@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\GraphCalculatedData;
 use App\Models\TokenStorage;
 use Exception;
+use Google\Cloud\Core\Timestamp;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -63,7 +64,7 @@ class GraphCron extends Command
         $allHastags = array_unique($allHastags);
 
         print_r($allHastags);
-        
+
         return $allHastags;
     }
 
@@ -295,6 +296,12 @@ class GraphCron extends Command
         sleep(2);
         $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
 
+
+        $collectionRef = $this->firestore->collection('metrics_logs');
+        $collectionRef->newDocument()->set([
+            'last_logged_at' => new Timestamp(new \DateTime())
+        ]);
+
 //        DB::beginTransaction();
 //        try {
 //
@@ -346,7 +353,7 @@ class GraphCron extends Command
         } catch (Exception $e) {
             print_r($e->getMessage());
         }
-    } 
+    }
 
     function getInsightData ($baseUrl, $data, $i, $metric, $token, $client, &$insightDataVar) {
         $client->getAsync("$baseUrl/{$data[$i]['id']}/insights?metric={$metric}&access_token={$token}")->then(
