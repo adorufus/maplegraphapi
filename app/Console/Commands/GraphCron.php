@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\GraphCalculatedData;
 use App\Models\TokenStorage;
+use DateTimeZone;
 use Exception;
 use Google\Cloud\Core\Timestamp;
 use GuzzleHttp\Client;
@@ -348,11 +349,18 @@ class GraphCron extends Command
 
         try {
             $collectionRef = $this->firestore->collection('metrics');
-            $docRef = $collectionRef->document($type);
-            $docRef->set($total);
+            $docRef = $collectionRef->document($type)->collection(new Timestamp($this->convertToGmt(new \DateTime("now"))))->document('data');
+            $docRef->set($total, [
+                'merge' => true
+            ]);
         } catch (Exception $e) {
             print_r($e->getMessage());
         }
+    }
+
+    function convertToGmt($dateTime) {
+        $dateTime->setTimezone(new DateTimeZone('Asia/Jakarta'));
+        return $dateTime;
     }
 
     function getInsightData ($baseUrl, $data, $i, $metric, $token, $client, &$insightDataVar) {
