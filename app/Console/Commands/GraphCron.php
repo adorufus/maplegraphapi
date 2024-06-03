@@ -349,10 +349,13 @@ class GraphCron extends Command
 
         try {
             $collectionRef = $this->firestore->collection('metrics');
-            $docRef = $collectionRef->document($type)->collection(new Timestamp($this->convertToGmt(new \DateTime("now"))))->document('data');
-            $docRef->set($total, [
-                'merge' => true
-            ]);
+            $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
+            $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
+            $docRef->set(
+                $total, [
+                    'merge' => true
+                ]
+            );
         } catch (Exception $e) {
             print_r($e->getMessage());
         }
