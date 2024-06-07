@@ -10,7 +10,8 @@ class Kernel extends ConsoleKernel
 
 
     protected $commands = [
-      \App\Console\Commands\GraphCron::class
+        \App\Console\Commands\GraphCron::class,
+        \App\Console\Commands\YoutubeMetricsCron::class
     ];
 
     /**
