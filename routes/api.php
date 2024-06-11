@@ -23,5 +23,5 @@ Route::prefix('v1')->group(function () {
     Route::get('/getMetrics', [GetMetricsController::class, 'getMetrics']);
     Route::get('/ytCallback', [YoutubeMetricController::class, 'getCallback']);
     Route::get('/createYtAuth', [YoutubeMetricController::class, 'createAuth']);
-    Route::get('/getYtAnalytics', [YoutubeMetricController::class, 'getAnalyticsData']);
+    Route::get('/getYtAnalytics', [YoutubeMetricController::class, 'ytFooBar']);
 })->middleware(['web']);
