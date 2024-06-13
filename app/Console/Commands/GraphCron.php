@@ -41,7 +41,9 @@ class GraphCron extends Command
     {
         parent::__construct();
         $this->graph_calculated_model = new GraphCalculatedData;
-        $this->firestore = new FirestoreClient();
+        $this->firestore = new FirestoreClient([
+            'projectId' => 'mapleapp-7c7ab'
+        ]);
     }
 
     public function segmentedMetrics($data): array

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Google\Cloud\Core\Exception\GoogleException;
 use Google\Cloud\Core\Timestamp;
 use Google\Service\Exception;
 use Google\Service\YouTube;
@@ -16,12 +17,10 @@ use Google\Cloud\Firestore\FirestoreClient;
 class YoutubeMetricController extends Controller
 {
     protected \Google_Client $client;
-    protected FirestoreClient $firestore;
 
     public function __construct()
     {
         $this->client = new \Google_Client();
-//        $this->firestore = new FirestoreClient();
     }
 
     function createAuth(Request $req)
@@ -118,6 +117,10 @@ class YoutubeMetricController extends Controller
 
     }
 
+    /**
+     * @throws Exception
+     * @throws GoogleException
+     */
     function ytFooBar() {
 
         session_start();
@@ -180,7 +183,9 @@ class YoutubeMetricController extends Controller
             }
         }
 
-        $firestore = new FirestoreClient();
+        $firestore = new FirestoreClient([
+            'projectId' => 'mapleapp-7c7ab'
+        ]);
 
         $ytMetricCollection = $firestore->collection('yt_metrics');
         $today = new Timestamp(new \DateTime());
@@ -188,9 +193,12 @@ class YoutubeMetricController extends Controller
         foreach ($statistic as $key => $value) {
             $docRef = $ytMetricCollection->document($key);
 
+            $toArray = json_decode(json_encode($value), true);
+
+
             $metricDataCol = $docRef->collection('metric_data')->document($today);
             $metricDataCol->set(
-                $value,
+                $toArray,
                 [
                     'merge' => true
                 ]
