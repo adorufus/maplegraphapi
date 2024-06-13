@@ -71,26 +71,35 @@ class YoutubeMetricsCron extends Command
      */
     public function handle()
     {
-
-
-
-
-
         $firestore = new FirestoreClient([
             'projectId' => 'mapleapp-7c7ab'
         ]);
 
-        $ytMetricCollection = $firestore->collection('yt_metrics');
-        $today = new Timestamp(new \DateTime());
+        $todayForChecker = date('Y-m-d');
 
-        $docRef = $ytMetricCollection->document('test');
+        $trackingDocRef = $firestore->collection('yt_meta')->document('last_storage_date');
+        $trackingDoc = $trackingDocRef->snapshot();
 
-        $metricDataCol = $docRef->collection('metric_data')->document($today);
-        $metricDataCol->set(
-            ["test" => 'test'],
-            [
-                'merge' => true
-            ]
-        );
+        $lastStorageDate = null;
+        if($trackingDoc->exists()) {
+            $lastStorageDate = $trackingDoc->get('date');
+        }
+
+        if($lastStorageDate !== $todayForChecker) {
+            $ytMetricCollection = $firestore->collection('yt_metrics');
+            $today = new Timestamp(new \DateTime());
+
+            $docRef = $ytMetricCollection->document('test');
+
+            $metricDataCol = $docRef->collection('metric_data')->document($today);
+            $metricDataCol->set(
+                ["test" => 'test'],
+                [
+                    'merge' => true
+                ]
+            );
+
+
+        }
     }
 }
