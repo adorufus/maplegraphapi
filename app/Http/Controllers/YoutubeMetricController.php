@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Google\Cloud\Core\Timestamp;
 use Google\Service\Exception;
 use Google\Service\YouTube;
 use Google\Service\YouTubeAnalytics\QueryResponse;
@@ -10,14 +11,17 @@ use Google_Service_YouTubeAnalytics;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Google\Cloud\Firestore\FirestoreClient;
 
 class YoutubeMetricController extends Controller
 {
     protected \Google_Client $client;
+    protected FirestoreClient $firestore;
 
     public function __construct()
     {
         $this->client = new \Google_Client();
+//        $this->firestore = new FirestoreClient();
     }
 
     function createAuth(Request $req)
@@ -171,9 +175,26 @@ class YoutubeMetricController extends Controller
 
 
                 foreach ($response->getItems() as $stats) {
-                    $statistic[$stats['id']] = $stats['statistics'];
+                    $statistic[$item['playlist_name']] = $stats['statistics'];
                 }
             }
+        }
+
+        $firestore = new FirestoreClient();
+
+        $ytMetricCollection = $firestore->collection('yt_metrics');
+        $today = new Timestamp(new \DateTime());
+
+        foreach ($statistic as $key => $value) {
+            $docRef = $ytMetricCollection->document($key);
+
+            $metricDataCol = $docRef->collection('metric_data')->document($today);
+            $metricDataCol->set(
+                $value,
+                [
+                    'merge' => true
+                ]
+            );
         }
 
         return response()->json($statistic);

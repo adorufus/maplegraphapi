@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Promise\Utils;
 use Google\Cloud\Firestore\FirestoreClient;
+use Carbon\Carbon;
 
 class GraphCron extends Command
 {
@@ -351,6 +352,19 @@ class GraphCron extends Command
             $collectionRef = $this->firestore->collection('metrics');
             $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
             $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
+
+            $isEndOfMonth = Carbon::now()->isLastOfMonth();
+
+            if($isEndOfMonth) {
+                $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+
+                $monthlyRef->set(
+                    $total, [
+                        'merge' => true
+                    ]
+                );
+            }
+
             $docRef->set(
                 $total, [
                     'merge' => true
