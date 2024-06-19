@@ -2,10 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Models\YoutubeToken;
+use Google\Cloud\Core\Exception\GoogleException;
 use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
+use Google\Service\Exception;
 use Google\Service\YouTube;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class YoutubeMetricsCron extends Command
 {
@@ -33,6 +37,9 @@ class YoutubeMetricsCron extends Command
      */
     protected $description = 'Command description';
 
+    /**
+     * @throws Exception
+     */
     function getAllPlaylistId($client): array
     {
         $yt = new YouTube($client);
@@ -71,35 +78,163 @@ class YoutubeMetricsCron extends Command
      */
     public function handle()
     {
-        $firestore = new FirestoreClient([
-            'projectId' => 'mapleapp-7c7ab'
-        ]);
+        set_time_limit(3600);
+        $today = new \DateTime();
 
-        $todayForChecker = date('Y-m-d');
+        $this->client->addScope(\Google_Service_YouTube::YOUTUBE_READONLY);
 
-        $trackingDocRef = $firestore->collection('yt_meta')->document('last_storage_date');
-        $trackingDoc = $trackingDocRef->snapshot();
+        $service = new \Google_Service_YouTube($this->client);
 
-        $lastStorageDate = null;
-        if($trackingDoc->exists()) {
-            $lastStorageDate = $trackingDoc->get('date');
+        try {
+            $token = YoutubeToken::firstOrFail();
+
+            if ($token->isExpired()) {
+                $token->refreshToken($this->client);
+            } else {
+                $this->client->setAccessToken($token->access_token);
+            }
+
+            $playlists = $this->getAllPlaylistId($this->client);
+
+            $items = [];
+            $pageToken = '';
+            $statistic = [];
+            $firestore = new FirestoreClient([
+                'projectId' => 'mapleapp-7c7ab'
+            ]);
+
+            $todayForChecking = date('Y-m-d');
+            $lastStorageDate = null;
+            $trackingDocRef = $firestore->collection('yt_meta')->document('last_storage_date');
+
+            $trackingDoc = $trackingDocRef->snapshot();
+
+            if ($trackingDoc->exists()) {
+                $lastStorageTimestamp = $trackingDoc->get('date');
+
+                if ($lastStorageTimestamp instanceof Timestamp) {
+                    $lastStorageDateTime = $lastStorageTimestamp->get()->format('Y-m-d');
+                    $lastStorageDate = $lastStorageDateTime;
+                }
+            }
+            foreach ($playlists as $playlist) {
+                    do {
+                        $response = $service->playlistItems->listPlaylistItems('snippet', [
+                            'playlistId' => $playlist['id'],
+                            'maxResults' => 100,
+                            'pageToken' => $pageToken
+                        ]);
+
+                        $videoIds = [];
+
+                        foreach ($response->getItems() as $item) {
+                            $videoIds[] = $item->getSnippet()->getResourceId()->getVideoId();
+                        }
+
+                        $items[] = [
+                            'playlist_name' => $playlist['title'],
+                            'videos_id' => $videoIds
+                        ];
+
+                        $pageToken = $response->getNextPageToken();
+
+                    } while ($pageToken);
+                }
+
+                $combinedData = ['views' => 0,
+                    'likes' => 0,
+                    'dislikes' => 0,
+                    'comments' => 0,
+                    'favorite' => 0,];
+
+                foreach ($items as $item) {
+                    $chunks = array_chunk($item['videos_id'], 50);
+
+                    foreach ($chunks as $chunk) {
+                        $response = $service->videos->listVideos('statistics', [
+                            'id' => implode(',', $chunk)
+                        ]);
+
+                        if (!isset($statistic[$item['playlist_name']])) {
+                            $statistic[$item['playlist_name']] = [
+                                'views' => 0,
+                                'likes' => 0,
+                                'dislikes' => 0,
+                                'comments' => 0,
+                                'favorite' => 0,
+                            ];
+                        }
+
+                        foreach ($response->getItems() as $videoStats) {
+                            $stats = $videoStats->getStatistics();
+                            $views = isset($stats['viewCount']) ? $stats['viewCount'] : 0;
+                            $likes = isset($stats['likeCount']) ? $stats['likeCount'] : 0;
+                            $dislikes = isset($stats['dislikeCount']) ? $stats['dislikeCount'] : 0;
+                            $comments = isset($stats['commentCount']) ? $stats['commentCount'] : 0;
+                            $favorite = isset($stats['favoriteCount']) ? $stats['favoriteCount'] : 0;
+
+                            $statistic[$item['playlist_name']]['views'] += $views;
+                            $statistic[$item['playlist_name']]['likes'] += $likes;
+                            $statistic[$item['playlist_name']]['dislikes'] += $dislikes;
+                            $statistic[$item['playlist_name']]['comments'] += $comments;
+                            $statistic[$item['playlist_name']]['favorite'] += $favorite;
+
+                            $combinedData['views'] += $views;
+                            $combinedData['likes'] += $likes;
+                            $combinedData['dislikes'] += $dislikes;
+                            $combinedData['comments'] += $comments;
+                            $combinedData['favorite'] += $favorite;
+                        }
+                    }
+                }
+
+
+                $ytMetricCollection = $firestore->collection('yt_metrics');
+                $todayTimestamp = new Timestamp(new \DateTime());
+
+                $combinedData['updated_at'] = $todayTimestamp;
+
+                $combinedRef = $ytMetricCollection->document('data');
+
+                $combinedRef->set(['updated_at' => $todayTimestamp], ['merge' => true]);
+
+                $combinedRef->collection('metric_data')->document($todayTimestamp)->set(
+                    $combinedData
+                );
+
+                foreach ($statistic as $key => $value) {
+
+                    $formattedKey = str_replace(' ', '_', $key);
+                    $docRef = $ytMetricCollection->document(strtolower($formattedKey));
+
+                    $docRef->set(['updated_at' => $todayTimestamp]);
+
+                    $value['updated_at'] = $todayTimestamp;
+
+                    $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
+                    $metricDataCol->set(
+                        $value,
+                        [
+                            'merge' => true
+                        ]
+                    );
+                }
+
+                $trackingDocRef->set([
+                    'date' => $today
+                ]);
+
+                echo json_encode($statistic);
+        } catch (ModelNotFoundException $e) {
+            $this->error('No tokens found, please reauth the youtube account');
+
+            return 1;
+        } catch (GoogleException|Exception $e) {
+            $this->error("Exception caught:{$e->getMessage()}");
+
+            return 1;
         }
 
-        if($lastStorageDate !== $todayForChecker) {
-            $ytMetricCollection = $firestore->collection('yt_metrics');
-            $today = new Timestamp(new \DateTime());
 
-            $docRef = $ytMetricCollection->document('test');
-
-            $metricDataCol = $docRef->collection('metric_data')->document($today);
-            $metricDataCol->set(
-                ["test" => 'test'],
-                [
-                    'merge' => true
-                ]
-            );
-
-
-        }
     }
 }
