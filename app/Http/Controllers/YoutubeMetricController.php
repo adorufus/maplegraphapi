@@ -35,7 +35,7 @@ class YoutubeMetricController extends Controller
 
         $this->client->setClientId(config('services.google.client_id'));
         $this->client->setClientSecret(config('services.google.client_secret'));
-        $this->client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/api/v1/ytCallback');
+        $this->client->setRedirectUri(( App::environment('local') ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . '/api/v1/ytCallback');
         $this->client->setAccessType('offline');
         $this->client->addScope([Google_Service_YouTubeAnalytics::YT_ANALYTICS_READONLY, \Google_Service_YouTube::YOUTUBE_READONLY]);
         $this->client->setPrompt('consent');
@@ -47,7 +47,7 @@ class YoutubeMetricController extends Controller
     {
         $this->client->setClientId(config('services.google.client_id'));
         $this->client->setClientSecret(config('services.google.client_secret'));
-        $this->client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/api/v1/ytCallback');
+        $this->client->setRedirectUri(( App::environment('local') ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . '/api/v1/ytCallback');
         $this->client->addScope(Google_Service_YouTubeAnalytics::YT_ANALYTICS_READONLY);
 
         if ($req->get('code')) {
