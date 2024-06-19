@@ -58,6 +58,7 @@ class YoutubeMetricController extends Controller
             $expiresAt = Carbon::now()->addSeconds($accessToken['expires_in']);
 
             YoutubeToken::updateOrCreate(
+                ['id' => 1],
                 [
                     'access_token' => $accessToken['access_token'],
                     'refresh_token' => $refreshToken,
