@@ -34,11 +34,31 @@ class YoutubeToken extends Model
 //
     public function refreshToken(Google_Client $client)
     {
-        $client->refreshToken($this->refresh_token);
-        $newAccessToken = $client->getAccessToken();
+        try {
+            // Refresh the token
+            $client->refreshToken($this->refresh_token);
+            $newAccessToken = $client->getAccessToken();
 
-        $this->access_token = $newAccessToken['access_token'];
-        $this->expires_at = Carbon::now()->addSeconds($newAccessToken['expires_in']);
-        $this->save();
+            // Debugging: Print the response
+            print_r($newAccessToken);
+
+            // Check if the response is valid
+            if (isset($newAccessToken['access_token']) && isset($newAccessToken['expires_in'])) {
+                $this->access_token = $newAccessToken['access_token'];
+                $this->expires_at = Carbon::now()->addSeconds($newAccessToken['expires_in']);
+
+                if (isset($newAccessToken['refresh_token'])) {
+                    $this->refresh_token = $newAccessToken['refresh_token'];
+                }
+
+                $this->save();
+            } else {
+                // Handle the case where the access token is not returned
+                throw new \Exception('Failed to refresh the access token.');
+            }
+        } catch (\Exception $e) {
+            // Handle exceptions
+            echo 'Error: ' . $e->getMessage();
+        }
     }
 }

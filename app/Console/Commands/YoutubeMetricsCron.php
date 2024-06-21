@@ -81,7 +81,11 @@ class YoutubeMetricsCron extends Command
         set_time_limit(3600);
         $today = new \DateTime();
 
+        $this->client->setClientId(config('services.google.client_id'));
+        $this->client->setClientSecret(config('services.google.client_secret'));
+        $this->client->setAccessType('offline');
         $this->client->addScope(\Google_Service_YouTube::YOUTUBE_READONLY);
+        $this->client->setPrompt('consent');
 
         $service = new \Google_Service_YouTube($this->client);
 
