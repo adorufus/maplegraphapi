@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\YoutubeToken;
+use Carbon\Carbon;
 use Google\Cloud\Core\Exception\GoogleException;
 use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
@@ -214,6 +215,18 @@ class YoutubeMetricsCron extends Command
                     $docRef->set(['updated_at' => $todayTimestamp]);
 
                     $value['updated_at'] = $todayTimestamp;
+
+                    $isEndOfMonth = Carbon::now()->isLastOfMonth();
+
+                    if($isEndOfMonth) {
+                        $monthlyRef = $docRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+
+                        $monthlyRef->set(
+                            $value, [
+                                'merge' => true
+                            ]
+                        );
+                    }
 
                     $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
                     $metricDataCol->set(
