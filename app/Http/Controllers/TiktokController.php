@@ -9,6 +9,7 @@ class TiktokController extends Controller
     function auth(Request $request) {
 
         $client_key = env('TIKTOK_CLIENT_KEY');
+        $client_key_sandbox = env('TIKTOK_CLIENT_KEY_SANDBOX');
 
         $csrfState = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 10)), 0, 32);
 
