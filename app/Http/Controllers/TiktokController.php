@@ -73,6 +73,8 @@ class TiktokController extends Controller
 
         $tiktokData = $tiktokModel->first()->toArray();
 
+        echo json_encode($tiktokData);
+
         $guzzleClient = new Client();
 
         $data = [
