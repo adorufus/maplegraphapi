@@ -105,6 +105,8 @@ class TiktokController extends Controller
 
                 echo $exception->getMessage();
             }
-        );
+        )->reject(function ($reason) {
+            echo $reason->getMessage();
+        });
     }
 }
