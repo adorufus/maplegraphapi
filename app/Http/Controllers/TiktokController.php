@@ -84,16 +84,15 @@ class TiktokController extends Controller
             'grant_type' => 'authorization_code'
         ];
 
-        $promise = $guzzleClient->postAsync('https://open.tiktokapis.com/v2/oauth/token/', [
+        $guzzleClient->postAsync('https://open.tiktokapis.com/v2/oauth/token/', [
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
                 'Cache-Control' => 'no-cache',
             ],
             'form_params' => $data,
-        ]);
-
-        $promise->then(
+        ])->then(
             function ($response) {
+                echo 'memek';
                 $body = json_decode($response->getBody(), true);
                 Log::info($body);
 
