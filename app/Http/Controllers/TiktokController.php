@@ -17,7 +17,7 @@ class TiktokController extends Controller
         $encodedUri = urlencode($redirUri);
 
         $url = 'https://www.tiktok.com/v2/auth/authorize/';
-        $url .= "?client_key=$client_key";
+        $url .= "?client_key=$client_key_sandbox";
         $url .= "&scope=user.info.basic";
         $url .= "&response_type=code";
         $url .= "&redirect_uri=$encodedUri";
