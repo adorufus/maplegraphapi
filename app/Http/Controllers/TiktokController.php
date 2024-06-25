@@ -12,7 +12,7 @@ class TiktokController extends Controller
 
         $csrfState = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 10)), 0, 32);
 
-        $redirUri = 'https://mapleapp-7c7ab.web.app/tiktok-callback';
+        $redirUri = 'https://api.webwebapa.cloud/api/v1/tiktok-callback';
         $encodedUri = urlencode($redirUri);
 
         $url = 'https://www.tiktok.com/v2/auth/authorize/';
