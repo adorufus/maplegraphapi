@@ -2,14 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\tiktok;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TiktokController extends Controller
 {
-    function auth(Request $request) {
 
-        $client_key = env('TIKTOK_CLIENT_KEY');
-        $client_key_sandbox = env('TIKTOK_CLIENT_KEY_SANDBOX');
+    protected string $client_key;
+    protected string $client_key_sandbox;
+    protected string $client_secret;
+    protected string $client_secret_sandbox;
+
+    public function __construct()
+    {
+        $this->client_key = env('TIKTOK_CLIENT_KEY');
+        $this->client_key_sandbox = env('TIKTOK_CLIENT_KEY_SANDBOX');
+        $this->client_secret = env('TIKTOK_CLIENT_SECRET');
+        $this->client_secret_sandbox = env('TIKTOK_CLIENT_SECRET_SANDBOX');
+    }
+
+    function auth(Request $request)
+    {
+
 
         $csrfState = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 10)), 0, 32);
 
@@ -19,7 +36,7 @@ class TiktokController extends Controller
         $encodedUri = urlencode($redirUri);
 
         $url = 'https://www.tiktok.com/v2/auth/authorize/';
-        $url .= "?client_key=$client_key_sandbox";
+        $url .= "?client_key=$this->client_key_sandbox";
         $url .= "&scope=user.info.basic";
         $url .= "&response_type=code";
         $url .= "&redirect_uri=$encodedUri";
@@ -28,7 +45,8 @@ class TiktokController extends Controller
         return redirect()->away($url)->cookie($cookie);
     }
 
-    function callback(Request $request) {
+    function callback(Request $request)
+    {
         // Retrieve the 'code' parameter from the URL
         $code = $request->query('code');
 
@@ -36,12 +54,50 @@ class TiktokController extends Controller
         $scopes = $request->query('scopes');
         $state = $request->query('state');
 
+        $tiktokModel = new tiktok;
+
         // Use the retrieved parameters as needed
         // For example, you can return them or process them further
-        return response()->json([
-            'code' => $code,
-            'scopes' => $scopes,
-            'state' => $state,
+
+        $tiktokModel->updateOrCreate(
+            ['id' => 1],
+            ['code' => $code, 'scopes' => $scopes, 'state' => $state]
+        );
+
+        return redirect('https://api.webwebapa.cloud/api/v1/accept-user-access-token');
+    }
+
+    function acceptAccessToken(Request $request)
+    {
+        $tiktokModel = new tiktok;
+
+        $tiktokData = $tiktokModel->first()->toArray();
+
+        $guzzleClient = new Client();
+
+        $data = [
+            'client_key' => $this->client_key_sandbox,
+            'client_secret' => $this->client_secret_sandbox,
+            'code' => $tiktokData['code'],
+            'grant_type' => 'authorization_code'
+        ];
+
+        $promise = $guzzleClient->postAsync('https://open.tiktokapis.com/v2/oauth/token/', [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Cache-Control' => 'no-cache',
+            ],
+            'form_params' => $data,
         ]);
+
+        $promise->then(
+            function ($response) {
+                $body = json_decode($response->getBody(), true);
+                Log::info($body);
+            },
+            function ($exception) {
+                Log::info($exception->getBody());
+            }
+        );
     }
 }

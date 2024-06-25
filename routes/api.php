@@ -26,4 +26,5 @@ Route::prefix('v1')->group(function () {
     Route::get('/getYtAnalytics', [YoutubeMetricController::class, 'ytFooBar']);
     Route::get('/tiktok-login', [\App\Http\Controllers\TiktokController::class, 'auth']);
     Route::get('/tiktok-callback', [\App\Http\Controllers\TiktokController::class, 'callback']);
+    Route::get('/accept-user-access-token', [\App\Http\Controllers\TiktokController::class, 'acceptAccessToken']);
 })->middleware(['web']);
