@@ -96,9 +96,15 @@ class TiktokController extends Controller
             function ($response) {
                 $body = json_decode($response->getBody(), true);
                 Log::info($body);
+
+                echo $body;
             },
             function ($exception) {
-                Log::info($exception->getBody());
+                Log::error('TikTok API Request Failed', [
+                    'message' => $exception->getMessage(),
+                ]);
+
+                echo $exception->getMessage();
             }
         );
     }
