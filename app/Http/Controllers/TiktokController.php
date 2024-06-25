@@ -84,29 +84,26 @@ class TiktokController extends Controller
             'grant_type' => 'authorization_code'
         ];
 
-        $guzzleClient->postAsync('https://open.tiktokapis.com/v2/oauth/token/', [
-            'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'Cache-Control' => 'no-cache',
-            ],
-            'form_params' => $data,
-        ])->then(
-            function ($response) {
-                echo 'memek';
-                $body = json_decode($response->getBody(), true);
-                Log::info($body);
+        try {
+            // Send the POST request
+            $response = $guzzleClient->post('https://open.tiktokapis.com/v2/oauth/token/', [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Cache-Control' => 'no-cache',
+                ],
+                'form_params' => $data,
+            ]);
 
-                echo $body;
-            },
-            function ($exception) {
-                Log::error('TikTok API Request Failed', [
-                    'message' => $exception->getMessage(),
-                ]);
+            // Get the response body
+            $body = $response->getBody()->getContents();
+            $responseData = json_decode($body, true);
 
-                echo $exception->getMessage();
-            }
-        )->reject(function ($reason) {
-            echo $reason->getMessage();
-        });
+            return response()->json($responseData);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Request failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
