@@ -81,7 +81,8 @@ class TiktokController extends Controller
             'client_key' => $this->client_key_sandbox,
             'client_secret' => $this->client_secret_sandbox,
             'code' => $tiktokData['code'],
-            'grant_type' => 'authorization_code'
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => 'https://mapleapp-7c7ab.web.app/tiktok-callback',
         ];
 
         try {
