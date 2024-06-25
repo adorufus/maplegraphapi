@@ -13,6 +13,8 @@ class TiktokController extends Controller
 
         $csrfState = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 10)), 0, 32);
 
+        $cookie = cookie('csrfState', $csrfState, minutes: 60);
+
         $redirUri = 'https://api.webwebapa.cloud/api/v1/tiktok-callback';
         $encodedUri = urlencode($redirUri);
 
@@ -23,7 +25,7 @@ class TiktokController extends Controller
         $url .= "&redirect_uri=$encodedUri";
         $url .= "&state=$csrfState";
 
-        return redirect()->away($url);
+        return redirect()->away($url)->cookie($cookie);
     }
 
     function callback(Request $request) {

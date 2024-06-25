@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('tiktoks', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
+            $table->string('scopes');
+            $table->string('state');
             $table->timestamps();
         });
     }
