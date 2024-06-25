@@ -27,7 +27,19 @@ class TiktokController extends Controller
     }
 
     function callback(Request $request) {
-        echo $request->path();
-        echo $request->route('code');
+        // Retrieve the 'code' parameter from the URL
+        $code = $request->query('code');
+
+        // Optionally, retrieve other parameters like 'scopes' and 'state'
+        $scopes = $request->query('scopes');
+        $state = $request->query('state');
+
+        // Use the retrieved parameters as needed
+        // For example, you can return them or process them further
+        return response()->json([
+            'code' => $code,
+            'scopes' => $scopes,
+            'state' => $state,
+        ]);
     }
 }
