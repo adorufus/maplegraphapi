@@ -72,6 +72,7 @@ class TiktokController extends Controller
         $tiktokModel = new tiktok;
 
         $tiktokData = $tiktokModel->first()->toArray();
+        $redirUri = 'https://api.webwebapa.cloud/api/v1/tiktok-callback';
 
         echo json_encode($tiktokData);
 
@@ -82,7 +83,7 @@ class TiktokController extends Controller
             'client_secret' => $this->client_secret_sandbox,
             'code' => $tiktokData['code'],
             'grant_type' => 'authorization_code',
-            'redirect_uri' => 'https://mapleapp-7c7ab.web.app/tiktok-callback',
+            'redirect_uri' => $redirUri,
         ];
 
         try {
