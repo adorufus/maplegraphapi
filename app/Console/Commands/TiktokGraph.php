@@ -42,6 +42,9 @@ class TiktokGraph extends Command
             'headers' => [
                 'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
                 'Content-Type' => 'application/json'
+            ],
+            'json' => [
+                'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
             ]
         ]);
 
