@@ -36,7 +36,7 @@ class TiktokGraph extends Command
 
         // echo json_encode($firstIndexTokenModel);
 
-        $url = 'https://open-api.tiktok.com/video/list/';
+        $url = 'https://open.tiktokapis.com/v2/video/list/';
 
         $response = $httpClient->post($url, [
             'headers' => [
