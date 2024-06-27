@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\tiktok;
+use App\Models\TiktokToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Request;
@@ -37,7 +38,7 @@ class TiktokController extends Controller
 
         $url = 'https://www.tiktok.com/v2/auth/authorize/';
         $url .= "?client_key=$this->client_key_sandbox";
-        $url .= "&scope=user.info.basic";
+        $url .= "&scope=user.info.basic,video.list";
         $url .= "&response_type=code";
         $url .= "&redirect_uri=$encodedUri";
         $url .= "&state=$csrfState";
@@ -69,6 +70,8 @@ class TiktokController extends Controller
 
     function acceptAccessToken(Request $request)
     {
+
+        $tiktokTokenModel = new TiktokToken;
         $tiktokModel = new tiktok;
 
         $tiktokData = $tiktokModel->first()->toArray();
@@ -99,6 +102,16 @@ class TiktokController extends Controller
             // Get the response body
             $body = $response->getBody()->getContents();
             $responseData = json_decode($body, true);
+            
+            $tiktokTokenModel->updateOrCreate(['id' => 1], [
+                'access_token' => $responseData['access_token'],
+                'expires_in' => $responseData['expires_in'],
+                'open_id' => $responseData['open_id'],
+                'refresh_expires_in' => $responseData['refresh_expires_in'],
+                'refresh_token' => $responseData['refresh_token'],
+                'scope' => $responseData['scope'],
+                'token_type' => $responseData['token_type'],
+            ]);
 
             return response()->json($responseData);
         } catch (\Exception $e) {
