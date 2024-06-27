@@ -32,7 +32,7 @@ class TiktokGraph extends Command
 
         $tiktokTokenModel = new TiktokToken;
         $httpClient = new Client();
-        $firstIndexTokenModel = $tiktokTokenModel->first->toArray();
+        $firstIndexTokenModel = $tiktokTokenModel->first()->toArray();
 
         $url = 'https://open-api.tiktok.com/video/list/';
 
