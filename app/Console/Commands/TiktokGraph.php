@@ -43,7 +43,7 @@ class TiktokGraph extends Command
                 'Content-Type' => 'application/json'
             ],
             'form_params' => [
-                'access_token' => $firstIndexTokenModel['access_token '],
+                'access_token' => $firstIndexTokenModel['access_token'],
                 'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
             ]
         ])->then(function ($response) {
