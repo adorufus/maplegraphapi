@@ -41,8 +41,8 @@ class TiktokGraph extends Command
         $response = $httpClient->post($url, [
             'headers' => [
                 'Content-Type' => 'application/json'
-            ],
-            'form_params' => [
+            ],  
+            'json' => [
                 'access_token' => $firstIndexTokenModel['access_token'],
                 'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
             ]
