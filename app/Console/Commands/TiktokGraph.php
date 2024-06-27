@@ -33,12 +33,12 @@ class TiktokGraph extends Command
         $tiktokTokenModel = new TiktokToken;
         $httpClient = new Client();
         $firstIndexTokenModel = $tiktokTokenModel->first()->toArray();
-        
+
         // echo json_encode($firstIndexTokenModel);
 
         $url = 'https://open-api.tiktok.com/video/list/';
 
-        $httpClient->postAsync($url, [
+        $response = $httpClient->post($url, [
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
@@ -46,9 +46,11 @@ class TiktokGraph extends Command
                 'access_token' => $firstIndexTokenModel['access_token'],
                 'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
             ]
-        ])->then(function ($response) {
-            echo json_decode($response->getBody()->getContents(), true);
-        });
+        ]);
+
+        $body = $response->getBody()->getContents();
+
+        echo json_decode($body, true);
 
     }
 }
