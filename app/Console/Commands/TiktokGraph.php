@@ -50,7 +50,7 @@ class TiktokGraph extends Command
 
         $body = $response->getBody()->getContents();
 
-        echo json_decode($body, true);
+        echo $body;
 
     }
 }
