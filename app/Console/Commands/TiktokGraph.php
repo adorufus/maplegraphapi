@@ -47,7 +47,7 @@ class TiktokGraph extends Command
                 'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
             ]
         ])->then(function ($response) {
-            echo json_decode($response->getBody());
+            echo json_decode($response->getBody()->getContents(), true);
         });
 
     }
