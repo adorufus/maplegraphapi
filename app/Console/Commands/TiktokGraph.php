@@ -216,6 +216,9 @@ class TiktokGraph extends Command
 
     function calcAndSendToFirebase($insightData, $type)
     {
+        echo json_encode($insightData);
+
+
         $viewSum = 0;
         $commentsSum = 0;
         $likes = 0;
