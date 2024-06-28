@@ -236,45 +236,45 @@ class TiktokGraph extends Command
         $total = [];
 
 
-        if ($type != 'data') {
-            $total = [
-                'view' => $viewSum += $insightData['view_count'],
-                'comments' => $commentsSum += $insightData['comment_count'],
-                'likes' => $likes += $insightData['like_count'],
-                'shares' => $shares += $insightData['share_count'],
-            ];
-        }
+        // if ($type != 'data') {
+        //     $total = [
+        //         'view' => $viewSum += $insightData['view_count'],
+        //         'comments' => $commentsSum += $insightData['comment_count'],
+        //         'likes' => $likes += $insightData['like_count'],
+        //         'shares' => $shares += $insightData['share_count'],
+        //     ];
+        // }
 
-        $total['media_count'] = count($insightData);
+        // $total['media_count'] = count($insightData);
 
-        print_r($total);
+        // print_r($total);
 
-        try {
-            $collectionRef = $this->firestore->collection('tiktok_graph');
-            $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
-            $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
+        // try {
+        //     $collectionRef = $this->firestore->collection('tiktok_graph');
+        //     $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
+        //     $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
 
-            $isEndOfMonth = Carbon::now()->isLastOfMonth();
+        //     $isEndOfMonth = Carbon::now()->isLastOfMonth();
 
-            if ($isEndOfMonth) {
-                $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+        //     if ($isEndOfMonth) {
+        //         $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                $monthlyRef->set(
-                    $total,
-                    [
-                        'merge' => true
-                    ]
-                );
-            }
+        //         $monthlyRef->set(
+        //             $total,
+        //             [
+        //                 'merge' => true
+        //             ]
+        //         );
+        //     }
 
-            $docRef->set(
-                $total,
-                [
-                    'merge' => true
-                ]
-            );
-        } catch (Exception $e) {
-            print_r($e->getMessage());
-        }
+        //     $docRef->set(
+        //         $total,
+        //         [
+        //             'merge' => true
+        //         ]
+        //     );
+        // } catch (Exception $e) {
+        //     print_r($e->getMessage());
+        // }
     }
 }
