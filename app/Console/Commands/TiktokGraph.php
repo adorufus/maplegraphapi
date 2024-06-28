@@ -244,6 +244,7 @@ class TiktokGraph extends Command
                 ];
             }
         } else {
+            echo "insight data" . $insightData;
             $total = [
                 'view' => $insightData['view_count'],
                 'comments' => $insightData['comment_count'],
@@ -258,6 +259,7 @@ class TiktokGraph extends Command
 
         try {
             $collectionRef = $this->firestore->collection('tiktok_graph');
+            $collectionRef->document($type)->set(["data" => true]);
             $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
             $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
 
