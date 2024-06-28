@@ -222,7 +222,7 @@ class TiktokGraph extends Command
 
     function calcAndSendToFirebase($insightData, $type)
     {
-        // echo json_encode($insightData) . "\n";
+        echo 'memek ' . json_encode($insightData) . "\n";
 
 
         $viewSum = 0;
