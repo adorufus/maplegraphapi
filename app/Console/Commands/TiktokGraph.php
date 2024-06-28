@@ -183,7 +183,7 @@ class TiktokGraph extends Command
 
             $combinedData['view_count'] += $views;
             $combinedData['like_count'] += $likes;
-            $combinedData['comcomment_countments'] += $comments;
+            $combinedData['comment_count'] += $comments;
             $combinedData['share_count'] += $share;
 
             echo json_encode($combinedData);
