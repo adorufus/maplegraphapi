@@ -118,59 +118,59 @@ class TiktokGraph extends Command
 
             if ($caption) {
                 if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')) {
-                    $rewindInsightData = array_merge($rewindInsightData, $item);
+                    $rewindInsightData = array_push($rewindInsightData, $item);
 
                     echo "rewind \n";
                 }
 
                 if (str_contains($caption, '#BreakingBadNews')) {
-                    $bbnInsightData = array_merge($bbnInsightData, $item);
+                    $bbnInsightData = array_push($bbnInsightData, $item);
                     echo "bbn \n";
                 }
 
                 if (str_contains($caption, '#JikaKukuhMenjadi')) {
-                    $jkmInsightData = array_merge($jkmInsightData, $item);
+                    $jkmInsightData = array_push($jkmInsightData, $item);
 
                     echo "jkm \n";
                 }
 
                 if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
-                    $dixiInsightData = array_merge($dixiInsightData, $item);
+                    $dixiInsightData = array_push($dixiInsightData, $item);
 
                     echo "dixi \n";
                 }
 
                 if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
-                    $wanderInsightData = array_merge($wanderInsightData, $item);
+                    $wanderInsightData = array_push($wanderInsightData, $item);
 
                     echo "wander \n";
                 }
 
                 if (str_contains($caption, '#ASMR')) {
-                    $asmrInsightData = array_merge($asmrInsightData, $item);
+                    $asmrInsightData = array_push($asmrInsightData, $item);
 
                     echo "asmr \n";
                 }
 
                 if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
-                    $trickroomInsightData = array_merge($trickroomInsightData, $item);
+                    $trickroomInsightData = array_push($trickroomInsightData, $item);
 
                     echo "trickroom \n";
                 }
 
                 if (str_contains($caption, '#CAN')) {
-                    $canInsightData = array_merge($canInsightData, $item);
+                    $canInsightData = array_push($canInsightData, $item);
 
                     echo "can \n";
                 }
 
                 if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
-                    $unsceneInsightData = array_merge($unsceneInsightData, $item);
+                    $unsceneInsightData = array_push($unsceneInsightData, $item);
                     echo "unscene \n";
                 }
 
                 if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
-                    $playroomInsightData = array_merge($playroomInsightData, $item);
+                    $playroomInsightData = array_push($playroomInsightData, $item);
 
                     echo "playroom \n";
                 }
