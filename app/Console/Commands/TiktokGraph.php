@@ -229,7 +229,7 @@ class TiktokGraph extends Command
 
         foreach ($insightData as $insight) {
             $total = [
-                'view' => $viewSum += $insight['view'],
+                'view' => $viewSum += $insight['view_count'],
                 'comments' => $commentsSum += $insight['comment_count'],
                 'likes' => $likes += $insight['like_count'],
                 'shares' => $shares += $insight['share_count'],
