@@ -181,10 +181,10 @@ class TiktokGraph extends Command
             $comments = isset($item['comment_count']) ? $item['comment_count'] : 0;
             $share = isset($item['share_count']) ? $item['share_count'] : 0;
 
-            $combinedData['views'] += $views;
-            $combinedData['likes'] += $likes;
-            $combinedData['comments'] += $comments;
-            $combinedData['share'] += $share;
+            $combinedData['view_count'] += $views;
+            $combinedData['like_count'] += $likes;
+            $combinedData['comcomment_countments'] += $comments;
+            $combinedData['share_count'] += $share;
 
             echo json_encode($combinedData);
         }
@@ -229,7 +229,7 @@ class TiktokGraph extends Command
 
         foreach ($insightData as $insight) {
             $total = [
-                'view' => $viewSum += $insight['view_count'],
+                'view' => $viewSum += $insight['view'],
                 'comments' => $commentsSum += $insight['comment_count'],
                 'likes' => $likes += $insight['like_count'],
                 'shares' => $shares += $insight['share_count'],
