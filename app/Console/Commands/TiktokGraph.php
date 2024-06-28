@@ -244,7 +244,7 @@ class TiktokGraph extends Command
                 ];
             }
         } else {
-            echo "insight data" . $insightData;
+            // echo "insight data" . $insightData;
             $total = [
                 'view' => $insightData['view_count'],
                 'comments' => $insightData['comment_count'],
