@@ -37,7 +37,7 @@ class TiktokController extends Controller
         $encodedUri = urlencode($redirUri);
 
         $url = 'https://www.tiktok.com/v2/auth/authorize/';
-        $url .= "?client_key=$this->client_key_sandbox";
+        $url .= "?client_key=$this->client_key";
         $url .= "&scope=user.info.basic,video.list";
         $url .= "&response_type=code";
         $url .= "&redirect_uri=$encodedUri";
@@ -82,8 +82,8 @@ class TiktokController extends Controller
         $guzzleClient = new Client();
 
         $data = [
-            'client_key' => $this->client_key_sandbox,
-            'client_secret' => $this->client_secret_sandbox,
+            'client_key' => $this->client_key,
+            'client_secret' => $this->client_secret,
             'code' => $tiktokData['code'],
             'grant_type' => 'authorization_code',
             'redirect_uri' => $redirUri,
