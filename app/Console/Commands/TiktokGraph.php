@@ -37,11 +37,16 @@ class TiktokGraph extends Command
         $hasMore = false;
         $data = [];
         $count = 0;
+        $cursor = '';
 
         // echo json_encode($firstIndexTokenModel);
 
         do {
             $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
+
+            if($cursor != '') {
+                $url = $cursor;
+            }
 
             $response = $httpClient->post($url, [
                 'headers' => [
@@ -61,6 +66,7 @@ class TiktokGraph extends Command
 
             echo 'array pushed ' . $count . "\n";
             $hasMore = $body['data']['has_more'];
+            $cursor = $body['data']['cursor'];
 
             sleep(3);
 
