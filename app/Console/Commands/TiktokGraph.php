@@ -176,7 +176,7 @@ class TiktokGraph extends Command
                 }
             }
 
-            echo json_encode($item) . "\n";
+            // echo json_encode($item) . "\n";
             $views = isset($item['view_count']) ? $item['view_count'] : 0;
             $likes = isset($item['like_count']) ? $item['like_count'] : 0;
             $comments = isset($item['comment_count']) ? $item['comment_count'] : 0;
@@ -222,7 +222,7 @@ class TiktokGraph extends Command
 
     function calcAndSendToFirebase($insightData, $type)
     {
-        echo json_encode($insightData);
+        echo json_encode($insightData) . "\n";
 
 
         $viewSum = 0;
