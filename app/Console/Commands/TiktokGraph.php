@@ -56,16 +56,12 @@ class TiktokGraph extends Command
             'max_count' => 20
         ];
 
-        // echo json_encode($firstIndexTokenModel);
-
         do {
             $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
             if ($cursor != '') {
                 $bodyData['cursor'] = $cursor;
             }
-
-
 
             $response = $httpClient->post($url, [
                 'headers' => [
@@ -77,7 +73,8 @@ class TiktokGraph extends Command
 
             $body = json_decode($response->getBody()->getContents(), true);
 
-            array_push($data, $body['data']['videos']);
+            // Merge videos data into $data array
+            $data = array_merge($data, $body['data']['videos']);
 
             $count += 1;
 
@@ -87,8 +84,6 @@ class TiktokGraph extends Command
 
             sleep(1);
         } while ($hasMore);
-
-        echo 'data: ' . json_encode($data);
 
         $this->calculate($data);
 
@@ -117,7 +112,7 @@ class TiktokGraph extends Command
 
             echo json_encode($combinedData);
         }
-        
+
 
         $this->firestore->collection('tiktok_graph')->document('metric_data')->set(
             $combinedData
