@@ -46,7 +46,7 @@ class TiktokGraph extends Command
                 'Content-Type' => 'application/json'
             ],
             'json' => [
-                'max_count' => 200
+                'max_count' => 50
             ]
         ]);
 
