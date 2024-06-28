@@ -190,7 +190,7 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
-        echo "kontol " . $rewindInsightData . "\n"; 
+        echo "kontol " . json_encode($rewindInsightData) . "\n"; 
 
 
         $compiledSegmentsInsights['rewind'] = $rewindInsightData;
