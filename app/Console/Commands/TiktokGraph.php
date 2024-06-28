@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\TiktokToken;
+use Carbon\Carbon;
+use Exception;
+use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
@@ -98,7 +101,80 @@ class TiktokGraph extends Command
             'share' => 0,
         ];
 
+        $rewindInsightData = [];
+        $bbnInsightData = [];
+        $jkmInsightData = [];
+        $dixiInsightData = [];
+        $wanderInsightData = [];
+        $asmrInsightData = [];
+        $canInsightData = [];
+        $trickroomInsightData = [];
+        $unsceneInsightData = [];
+        $playroomInsightData = [];
+
         foreach ($data as $item) {
+            $caption = $item['title'];
+
+            if ($caption) {
+                if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')) {
+                    $rewindInsightData = array_merge($rewindInsightData, $item);
+
+                    echo "rewind";
+                }
+
+                if (str_contains($caption, '#BreakingBadNews')) {
+                    $bbnInsightData = array_merge($bbnInsightData, $item);
+                    echo "bbn";
+                }
+
+                if (str_contains($caption, '#JikaKukuhMenjadi')) {
+                    $jkmInsightData = array_merge($jkmInsightData, $item);
+
+                    echo "jkm";
+                }
+
+                if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
+                    $dixiInsightData = array_merge($dixiInsightData, $item);
+
+                    echo "dixi";
+                }
+
+                if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
+                    $wanderInsightData = array_merge($wanderInsightData, $item);
+
+                    echo "wander";
+                }
+
+                if (str_contains($caption, '#ASMR')) {
+                    $asmrInsightData = array_merge($asmrInsightData, $item);
+
+                    echo "asmr";
+                }
+
+                if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
+                    $trickroomInsightData = array_merge($trickroomInsightData, $item);
+
+                    echo "trickroom";
+                }
+
+                if (str_contains($caption, '#CAN')) {
+                    $canInsightData = array_merge($canInsightData, $item);
+
+                    echo "can";
+                }
+
+                if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
+                    $unsceneInsightData = array_merge($unsceneInsightData, $item);
+                    echo "unscene";
+                }
+
+                if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
+                    $playroomInsightData = array_merge($playroomInsightData, $item);
+
+                    echo "playroom";
+                }
+            }
+
             echo json_encode($item) . "\n";
             $views = isset($item['view_count']) ? $item['view_count'] : 0;
             $likes = isset($item['like_count']) ? $item['like_count'] : 0;
@@ -114,8 +190,79 @@ class TiktokGraph extends Command
         }
 
 
-        $this->firestore->collection('tiktok_graph')->document('metric_data')->set(
-            $combinedData
-        );
+        $compiledSegmentsInsights['rewind'] = $rewindInsightData;
+        $compiledSegmentsInsights['bbn'] = $bbnInsightData;
+        $compiledSegmentsInsights['jkm'] = $jkmInsightData;
+        $compiledSegmentsInsights['dixi'] = $dixiInsightData;
+        $compiledSegmentsInsights['wander'] = $wanderInsightData;
+        $compiledSegmentsInsights['asmr'] = $asmrInsightData;
+        $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
+        $compiledSegmentsInsights['can'] = $canInsightData;
+        $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
+        $compiledSegmentsInsights['playroom'] = $playroomInsightData;
+
+        $this->calcAndSendToFirebase($combinedData, 'data');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+    }
+
+    function calcAndSendToFirebase($insightData, $type)
+    {
+        $viewSum = 0;
+        $commentsSum = 0;
+        $likes = 0;
+        $shares = 0;
+
+        $total = [];
+
+
+        foreach ($insightData as $insight) {
+            $total = [
+                'view' => $viewSum += $insight['view_count'],
+                'comments' => $commentsSum += $insight['comment_count'],
+                'likes' => $likes += $insight['like_count'],
+                'shares' => $shares += $insight['share_count'],
+            ];
+        }
+
+        $total['media_count'] = count($insightData);
+
+        print_r($total);
+
+        try {
+            $collectionRef = $this->firestore->collection('tiktok_graph');
+            $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
+            $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
+
+            $isEndOfMonth = Carbon::now()->isLastOfMonth();
+
+            if ($isEndOfMonth) {
+                $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+
+                $monthlyRef->set(
+                    $total,
+                    [
+                        'merge' => true
+                    ]
+                );
+            }
+
+            $docRef->set(
+                $total,
+                [
+                    'merge' => true
+                ]
+            );
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+        }
     }
 }
