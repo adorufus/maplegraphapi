@@ -104,7 +104,7 @@ class TiktokGraph extends Command
         ];
 
         foreach ($data as $item) {
-            echo $item . "\n";
+            echo json_encode($item) . "\n";
             $views = isset($item['view_count']) ? $item['view_count'] : 0;
             $likes = isset($item['like_count']) ? $item['like_count'] : 0;
             $comments = isset($item['comment_count']) ? $item['comment_count'] : 0;
