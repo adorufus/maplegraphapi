@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\TiktokToken;
 use Carbon\Carbon;
+use DateTimeZone;
 use Exception;
 use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
@@ -212,6 +213,11 @@ class TiktokGraph extends Command
         $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
         $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
         $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+    }
+
+    function convertToGmt($dateTime) {
+        $dateTime->setTimezone(new DateTimeZone('Asia/Jakarta'));
+        return $dateTime;
     }
 
     function calcAndSendToFirebase($insightData, $type)
