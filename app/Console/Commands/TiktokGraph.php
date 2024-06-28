@@ -90,7 +90,7 @@ class TiktokGraph extends Command
 
         echo 'data: ' . json_encode($data);
 
-
+        $this->calculate($data);
 
     }
 
