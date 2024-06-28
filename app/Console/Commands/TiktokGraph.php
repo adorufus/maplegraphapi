@@ -116,64 +116,62 @@ class TiktokGraph extends Command
         foreach ($data as $item) {
             $caption = $item['title'];
 
-            if ($caption) {
-                if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')) {
-                    $rewindInsightData = array_merge($rewindInsightData, $item);
+            if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND') || str_contains($caption, '#rewind')) {
+                $rewindInsightData = array_merge($rewindInsightData, $item);
 
-                    echo "rewind \n";
-                }
+                echo "rewind \n";
+            }
 
-                if (str_contains($caption, '#BreakingBadNews')) {
-                    $bbnInsightData = array_merge($bbnInsightData, $item);
-                    echo "bbn \n";
-                }
+            if (str_contains($caption, '#BreakingBadNews')) {
+                $bbnInsightData = array_merge($bbnInsightData, $item);
+                echo "bbn \n";
+            }
 
-                if (str_contains($caption, '#JikaKukuhMenjadi')) {
-                    $jkmInsightData = array_merge($jkmInsightData, $item);
+            if (str_contains($caption, '#JikaKukuhMenjadi')) {
+                $jkmInsightData = array_merge($jkmInsightData, $item);
 
-                    echo "jkm \n";
-                }
+                echo "jkm \n";
+            }
 
-                if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
-                    $dixiInsightData = array_merge($dixiInsightData, $item);
+            if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
+                $dixiInsightData = array_merge($dixiInsightData, $item);
 
-                    echo "dixi \n";
-                }
+                echo "dixi \n";
+            }
 
-                if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
-                    $wanderInsightData = array_merge($wanderInsightData, $item);
+            if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
+                $wanderInsightData = array_merge($wanderInsightData, $item);
 
-                    echo "wander \n";
-                }
+                echo "wander \n";
+            }
 
-                if (str_contains($caption, '#ASMR')) {
-                    $asmrInsightData = array_merge($asmrInsightData, $item);
+            if (str_contains($caption, '#ASMR')) {
+                $asmrInsightData = array_merge($asmrInsightData, $item);
 
-                    echo "asmr \n";
-                }
+                echo "asmr \n";
+            }
 
-                if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
-                    $trickroomInsightData = array_merge($trickroomInsightData, $item);
+            if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
+                $trickroomInsightData = array_merge($trickroomInsightData, $item);
 
-                    echo "trickroom \n";
-                }
+                echo "trickroom \n";
+            }
 
-                if (str_contains($caption, '#CAN')) {
-                    $canInsightData = array_merge($canInsightData, $item);
+            if (str_contains($caption, '#CAN')) {
+                $canInsightData = array_merge($canInsightData, $item);
 
-                    echo "can \n";
-                }
+                echo "can \n";
+            }
 
-                if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
-                    $unsceneInsightData = array_merge($unsceneInsightData, $item);
-                    echo "unscene \n";
-                }
+            if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
+                $unsceneInsightData = array_merge($unsceneInsightData, $item);
+                echo "unscene \n";
+            }
 
-                if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
-                    $playroomInsightData = array_merge($playroomInsightData, $item);
+            if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
+                $playroomInsightData = array_merge($playroomInsightData, $item);
 
-                    echo "playroom \n";
-                }
+                echo "playroom \n";
             }
 
             // echo json_encode($item) . "\n";
