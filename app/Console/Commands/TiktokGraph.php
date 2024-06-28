@@ -34,6 +34,8 @@ class TiktokGraph extends Command
         $httpClient = new Client();
         $firstIndexTokenModel = $tiktokTokenModel->first()->toArray();
 
+        $hasMore = false;
+
         // echo json_encode($firstIndexTokenModel);
 
         $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
@@ -44,7 +46,7 @@ class TiktokGraph extends Command
                 'Content-Type' => 'application/json'
             ],
             'json' => [
-                'fields' => ['id', 'title', 'like_count', 'comment_count', 'share_count', 'view_count']
+                'max_count' => 200
             ]
         ]);
 
