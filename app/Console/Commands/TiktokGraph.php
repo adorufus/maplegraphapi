@@ -36,6 +36,7 @@ class TiktokGraph extends Command
 
         $hasMore = false;
         $data = [];
+        $count = 0;
 
         // echo json_encode($firstIndexTokenModel);
 
@@ -56,10 +57,14 @@ class TiktokGraph extends Command
 
             array_push($data, $body['data']['videos']);
 
-            echo $body;
+            $count += 1;
+
+            echo 'array pushed ' . $count;
             $hasMore = $body['data']['has_more'];
 
         } while ($hasMore);
+
+        echo 'data: ' . json_encode($data);
 
     }
 }
