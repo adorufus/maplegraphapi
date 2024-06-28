@@ -35,24 +35,31 @@ class TiktokGraph extends Command
         $firstIndexTokenModel = $tiktokTokenModel->first()->toArray();
 
         $hasMore = false;
+        $data = [];
 
         // echo json_encode($firstIndexTokenModel);
 
-        $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
+        do {
+            $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
-        $response = $httpClient->post($url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
-                'Content-Type' => 'application/json'
-            ],
-            'json' => [
-                'max_count' => 20
-            ]
-        ]);
+            $response = $httpClient->post($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => [
+                    'max_count' => 20
+                ]
+            ]);
 
-        $body = $response->getBody()->getContents();
+            $body = $response->getBody()->getContents();
 
-        echo $body;
+            array_push($data, $body['data']['videos']);
+
+            echo $body;
+            $hasMore = $body['data']['has_more'];
+
+        } while ($hasMore);
 
     }
 }
