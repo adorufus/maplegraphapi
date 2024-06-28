@@ -188,31 +188,31 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
-        echo "kontol " . json_encode($rewindInsightData) . "\n"; 
+        echo "kontol " . json_encode($rewindInsightData) . "\n";
 
 
-        // $compiledSegmentsInsights['rewind'] = $rewindInsightData;
-        // $compiledSegmentsInsights['bbn'] = $bbnInsightData;
-        // $compiledSegmentsInsights['jkm'] = $jkmInsightData;
-        // $compiledSegmentsInsights['dixi'] = $dixiInsightData;
-        // $compiledSegmentsInsights['wander'] = $wanderInsightData;
-        // $compiledSegmentsInsights['asmr'] = $asmrInsightData;
-        // $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
-        // $compiledSegmentsInsights['can'] = $canInsightData;
-        // $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
-        // $compiledSegmentsInsights['playroom'] = $playroomInsightData;
+        $compiledSegmentsInsights['rewind'] = $rewindInsightData;
+        $compiledSegmentsInsights['bbn'] = $bbnInsightData;
+        $compiledSegmentsInsights['jkm'] = $jkmInsightData;
+        $compiledSegmentsInsights['dixi'] = $dixiInsightData;
+        $compiledSegmentsInsights['wander'] = $wanderInsightData;
+        $compiledSegmentsInsights['asmr'] = $asmrInsightData;
+        $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
+        $compiledSegmentsInsights['can'] = $canInsightData;
+        $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
+        $compiledSegmentsInsights['playroom'] = $playroomInsightData;
 
-        // $this->calcAndSendToFirebase($combinedData, 'data');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
-        // $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+        $this->calcAndSendToFirebase($combinedData, 'data');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
     }
 
     function convertToGmt($dateTime)
@@ -235,11 +235,20 @@ class TiktokGraph extends Command
 
 
         if ($type != 'data') {
+            foreach ($insightData as $insight) {
+                $total = [
+                    'view' => $viewSum += $insight['view_count'],
+                    'comments' => $commentsSum += $insight['comment_count'],
+                    'likes' => $likes += $insight['like_count'],
+                    'shares' => $shares += $insight['share_count'],
+                ];
+            }
+        } else {
             $total = [
-                'view' => $viewSum += $insightData['view_count'],
-                'comments' => $commentsSum += $insightData['comment_count'],
-                'likes' => $likes += $insightData['like_count'],
-                'shares' => $shares += $insightData['share_count'],
+                'view' => $insightData['view_count'],
+                'comments' => $insightData['comment_count'],
+                'likes' => $insightData['like_count'],
+                'shares' => $insightData['share_count'],
             ];
         }
 
