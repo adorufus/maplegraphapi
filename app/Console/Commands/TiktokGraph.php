@@ -87,7 +87,7 @@ class TiktokGraph extends Command
             $cursor = $body['data']['cursor'];
 
             sleep(1);
-        } while ($count < 5);
+        } while ($hasMore);
 
         $this->calculate($data);
 
@@ -118,59 +118,59 @@ class TiktokGraph extends Command
 
             if ($caption) {
                 if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')) {
-                    $rewindInsightData = array_push($rewindInsightData, $item);
+                    $rewindInsightData = array_merge($rewindInsightData, $item);
 
                     echo "rewind \n";
                 }
 
                 if (str_contains($caption, '#BreakingBadNews')) {
-                    $bbnInsightData = array_push($bbnInsightData, $item);
+                    $bbnInsightData = array_merge($bbnInsightData, $item);
                     echo "bbn \n";
                 }
 
                 if (str_contains($caption, '#JikaKukuhMenjadi')) {
-                    $jkmInsightData = array_push($jkmInsightData, $item);
+                    $jkmInsightData = array_merge($jkmInsightData, $item);
 
                     echo "jkm \n";
                 }
 
                 if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
-                    $dixiInsightData = array_push($dixiInsightData, $item);
+                    $dixiInsightData = array_merge($dixiInsightData, $item);
 
                     echo "dixi \n";
                 }
 
                 if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
-                    $wanderInsightData = array_push($wanderInsightData, $item);
+                    $wanderInsightData = array_merge($wanderInsightData, $item);
 
                     echo "wander \n";
                 }
 
                 if (str_contains($caption, '#ASMR')) {
-                    $asmrInsightData = array_push($asmrInsightData, $item);
+                    $asmrInsightData = array_merge($asmrInsightData, $item);
 
                     echo "asmr \n";
                 }
 
                 if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
-                    $trickroomInsightData = array_push($trickroomInsightData, $item);
+                    $trickroomInsightData = array_merge($trickroomInsightData, $item);
 
                     echo "trickroom \n";
                 }
 
                 if (str_contains($caption, '#CAN')) {
-                    $canInsightData = array_push($canInsightData, $item);
+                    $canInsightData = array_merge($canInsightData, $item);
 
                     echo "can \n";
                 }
 
                 if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
-                    $unsceneInsightData = array_push($unsceneInsightData, $item);
+                    $unsceneInsightData = array_merge($unsceneInsightData, $item);
                     echo "unscene \n";
                 }
 
                 if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
-                    $playroomInsightData = array_push($playroomInsightData, $item);
+                    $playroomInsightData = array_merge($playroomInsightData, $item);
 
                     echo "playroom \n";
                 }
@@ -193,28 +193,28 @@ class TiktokGraph extends Command
         echo "kontol " . json_encode($rewindInsightData) . "\n"; 
 
 
-        $compiledSegmentsInsights['rewind'] = $rewindInsightData;
-        $compiledSegmentsInsights['bbn'] = $bbnInsightData;
-        $compiledSegmentsInsights['jkm'] = $jkmInsightData;
-        $compiledSegmentsInsights['dixi'] = $dixiInsightData;
-        $compiledSegmentsInsights['wander'] = $wanderInsightData;
-        $compiledSegmentsInsights['asmr'] = $asmrInsightData;
-        $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
-        $compiledSegmentsInsights['can'] = $canInsightData;
-        $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
-        $compiledSegmentsInsights['playroom'] = $playroomInsightData;
+        // $compiledSegmentsInsights['rewind'] = $rewindInsightData;
+        // $compiledSegmentsInsights['bbn'] = $bbnInsightData;
+        // $compiledSegmentsInsights['jkm'] = $jkmInsightData;
+        // $compiledSegmentsInsights['dixi'] = $dixiInsightData;
+        // $compiledSegmentsInsights['wander'] = $wanderInsightData;
+        // $compiledSegmentsInsights['asmr'] = $asmrInsightData;
+        // $compiledSegmentsInsights['trickroom'] = $trickroomInsightData;
+        // $compiledSegmentsInsights['can'] = $canInsightData;
+        // $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
+        // $compiledSegmentsInsights['playroom'] = $playroomInsightData;
 
-        $this->calcAndSendToFirebase($combinedData, 'data');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
-        $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+        // $this->calcAndSendToFirebase($combinedData, 'data');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['bbn'], 'bbn');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['jkm'], 'jika_kukuh_menjadi');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['can'], 'can');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['asmr'], 'asmr');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['dixi'], 'dixi');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['wander'], 'wander');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
+        // $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
     }
 
     function convertToGmt($dateTime)
@@ -236,45 +236,45 @@ class TiktokGraph extends Command
         $total = [];
 
 
-        // if ($type != 'data') {
-        //     $total = [
-        //         'view' => $viewSum += $insightData['view_count'],
-        //         'comments' => $commentsSum += $insightData['comment_count'],
-        //         'likes' => $likes += $insightData['like_count'],
-        //         'shares' => $shares += $insightData['share_count'],
-        //     ];
-        // }
+        if ($type != 'data') {
+            $total = [
+                'view' => $viewSum += $insightData['view_count'],
+                'comments' => $commentsSum += $insightData['comment_count'],
+                'likes' => $likes += $insightData['like_count'],
+                'shares' => $shares += $insightData['share_count'],
+            ];
+        }
 
-        // $total['media_count'] = count($insightData);
+        $total['media_count'] = count($insightData);
 
-        // print_r($total);
+        print_r($total);
 
-        // try {
-        //     $collectionRef = $this->firestore->collection('tiktok_graph');
-        //     $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
-        //     $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
+        try {
+            $collectionRef = $this->firestore->collection('tiktok_graph');
+            $docRef = $collectionRef->document($type)->collection('metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime("now"))));
+            $total['updated_at'] = new Timestamp($this->convertToGmt(new \DateTime("now")));
 
-        //     $isEndOfMonth = Carbon::now()->isLastOfMonth();
+            $isEndOfMonth = Carbon::now()->isLastOfMonth();
 
-        //     if ($isEndOfMonth) {
-        //         $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+            if ($isEndOfMonth) {
+                $monthlyRef = $collectionRef->document($type)->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-        //         $monthlyRef->set(
-        //             $total,
-        //             [
-        //                 'merge' => true
-        //             ]
-        //         );
-        //     }
+                $monthlyRef->set(
+                    $total,
+                    [
+                        'merge' => true
+                    ]
+                );
+            }
 
-        //     $docRef->set(
-        //         $total,
-        //         [
-        //             'merge' => true
-        //         ]
-        //     );
-        // } catch (Exception $e) {
-        //     print_r($e->getMessage());
-        // }
+            $docRef->set(
+                $total,
+                [
+                    'merge' => true
+                ]
+            );
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+        }
     }
 }
