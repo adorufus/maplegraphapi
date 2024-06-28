@@ -87,7 +87,7 @@ class TiktokGraph extends Command
             $cursor = $body['data']['cursor'];
 
             sleep(1);
-        } while ($hasMore);
+        } while ($count < 5);
 
         $this->calculate($data);
 
