@@ -95,10 +95,10 @@ class TiktokGraph extends Command
     function calculate($data)
     {
         $combinedData = [
-            'views' => 0,
-            'likes' => 0,
-            'comments' => 0,
-            'share' => 0,
+            'view_count' => 0,
+            'like_count' => 0,
+            'comment_count' => 0,
+            'share_count' => 0,
         ];
 
         $rewindInsightData = [];
