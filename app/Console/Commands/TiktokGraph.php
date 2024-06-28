@@ -72,7 +72,7 @@ class TiktokGraph extends Command
             $hasMore = $body['data']['has_more'];
             $cursor = $body['data']['cursor'];
 
-            sleep(3);
+            sleep(1);
 
         } while ($hasMore);
 
