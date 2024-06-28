@@ -222,7 +222,7 @@ class TiktokGraph extends Command
 
     function calcAndSendToFirebase($insightData, $type)
     {
-        echo json_encode($insightData) . "\n";
+        // echo json_encode($insightData) . "\n";
 
 
         $viewSum = 0;
@@ -235,7 +235,7 @@ class TiktokGraph extends Command
 
         if ($type != 'data') {
             foreach ($insightData as $insight) {
-                echo json_encode($insight) . "\n";
+                echo "test: " . json_encode($insight) . "\n";
                 $total = [
                     'view' => $viewSum += $insight['view_count'],
                     'comments' => $commentsSum += $insight['comment_count'],
