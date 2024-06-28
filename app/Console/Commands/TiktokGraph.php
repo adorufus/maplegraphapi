@@ -39,23 +39,27 @@ class TiktokGraph extends Command
         $count = 0;
         $cursor = '';
 
+        $bodyData = [
+            'max_count' => 20
+        ];
+
         // echo json_encode($firstIndexTokenModel);
 
         do {
             $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
             if($cursor != '') {
-                $url = $cursor;
+                $bodyData['cursor'] = $cursor;
             }
+
+            
 
             $response = $httpClient->post($url, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
                     'Content-Type' => 'application/json'
                 ],
-                'json' => [
-                    'max_count' => 20
-                ]
+                'json' => $bodyData
             ]);
 
             $body = json_decode($response->getBody()->getContents(), true);
