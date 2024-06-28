@@ -113,7 +113,10 @@ class TiktokGraph extends Command
             $combinedData['likes'] += $likes;
             $combinedData['comments'] += $comments;
             $combinedData['share'] += $share;
+
+            echo json_encode($combinedData);
         }
+        
 
         $this->firestore->collection('tiktok_graph')->document('metric_data')->set(
             $combinedData
