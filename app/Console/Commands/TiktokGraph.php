@@ -59,8 +59,10 @@ class TiktokGraph extends Command
 
             $count += 1;
 
-            echo 'array pushed ' . $count;
+            echo 'array pushed ' . $count . "\n";
             $hasMore = $body['data']['has_more'];
+
+            sleep(3);
 
         } while ($hasMore);
 
