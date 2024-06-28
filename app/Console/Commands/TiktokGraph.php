@@ -190,6 +190,8 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
+        echo "kontol " . $rewindInsightData . "\n"; 
+
 
         $compiledSegmentsInsights['rewind'] = $rewindInsightData;
         $compiledSegmentsInsights['bbn'] = $bbnInsightData;
@@ -215,7 +217,8 @@ class TiktokGraph extends Command
         $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
     }
 
-    function convertToGmt($dateTime) {
+    function convertToGmt($dateTime)
+    {
         $dateTime->setTimezone(new DateTimeZone('Asia/Jakarta'));
         return $dateTime;
     }
@@ -234,15 +237,12 @@ class TiktokGraph extends Command
 
 
         if ($type != 'data') {
-            foreach ($insightData as $insight) {
-                echo "test: " . json_encode($insight) . "\n";
-                $total = [
-                    'view' => $viewSum += $insight['view_count'],
-                    'comments' => $commentsSum += $insight['comment_count'],
-                    'likes' => $likes += $insight['like_count'],
-                    'shares' => $shares += $insight['share_count'],
-                ];
-            }
+            $total = [
+                'view' => $viewSum += $insightData['view_count'],
+                'comments' => $commentsSum += $insightData['comment_count'],
+                'likes' => $likes += $insightData['like_count'],
+                'shares' => $shares += $insightData['share_count'],
+            ];
         }
 
         $total['media_count'] = count($insightData);
