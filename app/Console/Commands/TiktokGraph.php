@@ -120,59 +120,59 @@ class TiktokGraph extends Command
                 if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND')) {
                     $rewindInsightData = array_merge($rewindInsightData, $item);
 
-                    echo "rewind";
+                    echo "rewind \n";
                 }
 
                 if (str_contains($caption, '#BreakingBadNews')) {
                     $bbnInsightData = array_merge($bbnInsightData, $item);
-                    echo "bbn";
+                    echo "bbn \n";
                 }
 
                 if (str_contains($caption, '#JikaKukuhMenjadi')) {
                     $jkmInsightData = array_merge($jkmInsightData, $item);
 
-                    echo "jkm";
+                    echo "jkm \n";
                 }
 
                 if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
                     $dixiInsightData = array_merge($dixiInsightData, $item);
 
-                    echo "dixi";
+                    echo "dixi \n";
                 }
 
                 if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
                     $wanderInsightData = array_merge($wanderInsightData, $item);
 
-                    echo "wander";
+                    echo "wander \n";
                 }
 
                 if (str_contains($caption, '#ASMR')) {
                     $asmrInsightData = array_merge($asmrInsightData, $item);
 
-                    echo "asmr";
+                    echo "asmr \n";
                 }
 
                 if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
                     $trickroomInsightData = array_merge($trickroomInsightData, $item);
 
-                    echo "trickroom";
+                    echo "trickroom \n";
                 }
 
                 if (str_contains($caption, '#CAN')) {
                     $canInsightData = array_merge($canInsightData, $item);
 
-                    echo "can";
+                    echo "can \n";
                 }
 
                 if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
                     $unsceneInsightData = array_merge($unsceneInsightData, $item);
-                    echo "unscene";
+                    echo "unscene \n";
                 }
 
                 if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
                     $playroomInsightData = array_merge($playroomInsightData, $item);
 
-                    echo "playroom";
+                    echo "playroom \n";
                 }
             }
 
@@ -235,6 +235,7 @@ class TiktokGraph extends Command
 
         if ($type != 'data') {
             foreach ($insightData as $insight) {
+                echo json_encode($insight) . "\n";
                 $total = [
                     'view' => $viewSum += $insight['view_count'],
                     'comments' => $commentsSum += $insight['comment_count'],
