@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\TiktokToken;
+use Google\Cloud\Firestore\FirestoreClient;
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 
@@ -15,12 +16,24 @@ class TiktokGraph extends Command
      */
     protected $signature = 'tiktok:cron';
 
+    protected FirestoreClient $firestore;
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Get metrics from tiktok api v2';
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->firestore = new FirestoreClient(
+            [
+                'projectId' => 'mapleapp-7c7ab'
+            ]
+        );
+    }
 
     /**
      * Execute the console command.
@@ -48,11 +61,11 @@ class TiktokGraph extends Command
         do {
             $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
-            if($cursor != '') {
+            if ($cursor != '') {
                 $bodyData['cursor'] = $cursor;
             }
 
-            
+
 
             $response = $httpClient->post($url, [
                 'headers' => [
@@ -73,10 +86,37 @@ class TiktokGraph extends Command
             $cursor = $body['data']['cursor'];
 
             sleep(1);
-
         } while ($hasMore);
 
         echo 'data: ' . json_encode($data);
 
+
+
+    }
+
+    function calculate($data)
+    {
+        $combinedData = [
+            'views' => 0,
+            'likes' => 0,
+            'comments' => 0,
+            'share' => 0,
+        ];
+
+        foreach ($data as $item) {
+            $views = isset($item['view_count']) ? $item['view_count'] : 0;
+            $likes = isset($item['like_count']) ? $item['like_count'] : 0;
+            $comments = isset($item['comment_count']) ? $item['comment_count'] : 0;
+            $share = isset($item['share_count']) ? $item['share_count'] : 0;
+
+            $combinedData['views'] += $views;
+            $combinedData['likes'] += $likes;
+            $combinedData['comments'] += $comments;
+            $combinedData['share'] += $share;
+        }
+
+        $this->firestore->collection('tiktok_graph')->document('metric_data')->set(
+            $combinedData
+        );
     }
 }
