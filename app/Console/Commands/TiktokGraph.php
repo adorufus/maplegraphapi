@@ -52,7 +52,7 @@ class TiktokGraph extends Command
                 ]
             ]);
 
-            $body = json_encode($response->getBody()->getContents(), true);
+            $body = json_decode($response->getBody()->getContents(), true);
 
             array_push($data, $body['data']['videos']);
 
