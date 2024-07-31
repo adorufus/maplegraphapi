@@ -21,7 +21,7 @@ class YoutubeMetricsCron extends Command
     public function __construct()
     {
         parent::__construct();
-//        session_start();
+        //        session_start();
         $this->client = new \Google_Client();
     }
 
@@ -73,7 +73,8 @@ class YoutubeMetricsCron extends Command
         return $playlistIds;
     }
 
-    function convertToGmt($dateTime) {
+    function convertToGmt($dateTime)
+    {
         $dateTime->setTimezone(new DateTimeZone('Asia/Jakarta'));
         return $dateTime;
     }
@@ -129,113 +130,118 @@ class YoutubeMetricsCron extends Command
                 }
             }
             foreach ($playlists as $playlist) {
-                    do {
-                        $response = $service->playlistItems->listPlaylistItems('snippet', [
-                            'playlistId' => $playlist['id'],
-                            'maxResults' => 100,
-                            'pageToken' => $pageToken
-                        ]);
+                do {
+                    $response = $service->playlistItems->listPlaylistItems('snippet', [
+                        'playlistId' => $playlist['id'],
+                        'maxResults' => 100,
+                        'pageToken' => $pageToken
+                    ]);
 
-                        $videoIds = [];
+                    $videoIds = [];
 
-                        foreach ($response->getItems() as $item) {
-                            $videoIds[] = $item->getSnippet()->getResourceId()->getVideoId();
-                        }
+                    foreach ($response->getItems() as $item) {
+                        $videoIds[] = $item->getSnippet()->getResourceId()->getVideoId();
+                    }
 
-                        $items[] = [
-                            'playlist_name' => $playlist['title'],
-                            'videos_id' => $videoIds
+                    $items[] = [
+                        'playlist_name' => $playlist['title'],
+                        'videos_id' => $videoIds
+                    ];
+
+                    $pageToken = $response->getNextPageToken();
+
+                } while ($pageToken);
+            }
+
+            $combinedData = [
+                'views' => 0,
+                'likes' => 0,
+                'dislikes' => 0,
+                'comments' => 0,
+                'favorite' => 0,
+            ];
+
+            foreach ($items as $item) {
+                $chunks = array_chunk($item['videos_id'], 50);
+
+                foreach ($chunks as $chunk) {
+                    $response = $service->videos->listVideos('statistics', [
+                        'id' => implode(',', $chunk)
+                    ]);
+
+                    if (!isset($statistic[$item['playlist_name']])) {
+                        $statistic[$item['playlist_name']] = [
+                            'views' => 0,
+                            'likes' => 0,
+                            'dislikes' => 0,
+                            'comments' => 0,
+                            'favorite' => 0,
                         ];
+                    }
 
-                        $pageToken = $response->getNextPageToken();
+                    foreach ($response->getItems() as $videoStats) {
+                        $stats = $videoStats->getStatistics();
+                        $views = isset($stats['viewCount']) ? $stats['viewCount'] : 0;
+                        $likes = isset($stats['likeCount']) ? $stats['likeCount'] : 0;
+                        $dislikes = isset($stats['dislikeCount']) ? $stats['dislikeCount'] : 0;
+                        $comments = isset($stats['commentCount']) ? $stats['commentCount'] : 0;
+                        $favorite = isset($stats['favoriteCount']) ? $stats['favoriteCount'] : 0;
 
-                    } while ($pageToken);
-                }
+                        $statistic[$item['playlist_name']]['views'] += $views;
+                        $statistic[$item['playlist_name']]['likes'] += $likes;
+                        $statistic[$item['playlist_name']]['dislikes'] += $dislikes;
+                        $statistic[$item['playlist_name']]['comments'] += $comments;
+                        $statistic[$item['playlist_name']]['favorite'] += $favorite;
 
-                $combinedData = ['views' => 0,
-                    'likes' => 0,
-                    'dislikes' => 0,
-                    'comments' => 0,
-                    'favorite' => 0,];
-
-                foreach ($items as $item) {
-                    $chunks = array_chunk($item['videos_id'], 50);
-
-                    foreach ($chunks as $chunk) {
-                        $response = $service->videos->listVideos('statistics', [
-                            'id' => implode(',', $chunk)
-                        ]);
-
-                        if (!isset($statistic[$item['playlist_name']])) {
-                            $statistic[$item['playlist_name']] = [
-                                'views' => 0,
-                                'likes' => 0,
-                                'dislikes' => 0,
-                                'comments' => 0,
-                                'favorite' => 0,
-                            ];
-                        }
-
-                        foreach ($response->getItems() as $videoStats) {
-                            $stats = $videoStats->getStatistics();
-                            $views = isset($stats['viewCount']) ? $stats['viewCount'] : 0;
-                            $likes = isset($stats['likeCount']) ? $stats['likeCount'] : 0;
-                            $dislikes = isset($stats['dislikeCount']) ? $stats['dislikeCount'] : 0;
-                            $comments = isset($stats['commentCount']) ? $stats['commentCount'] : 0;
-                            $favorite = isset($stats['favoriteCount']) ? $stats['favoriteCount'] : 0;
-
-                            $statistic[$item['playlist_name']]['views'] += $views;
-                            $statistic[$item['playlist_name']]['likes'] += $likes;
-                            $statistic[$item['playlist_name']]['dislikes'] += $dislikes;
-                            $statistic[$item['playlist_name']]['comments'] += $comments;
-                            $statistic[$item['playlist_name']]['favorite'] += $favorite;
-
-                            $combinedData['views'] += $views;
-                            $combinedData['likes'] += $likes;
-                            $combinedData['dislikes'] += $dislikes;
-                            $combinedData['comments'] += $comments;
-                            $combinedData['favorite'] += $favorite;
-                        }
+                        $combinedData['views'] += $views;
+                        $combinedData['likes'] += $likes;
+                        $combinedData['dislikes'] += $dislikes;
+                        $combinedData['comments'] += $comments;
+                        $combinedData['favorite'] += $favorite;
                     }
                 }
+            }
 
 
-                $ytMetricCollection = $firestore->collection('yt_metrics');
-                $todayTimestamp = new Timestamp(new \DateTime());
+            $ytMetricCollection = $firestore->collection('yt_metrics');
+            $todayTimestamp = new Timestamp(new \DateTime());
 
-                $combinedData['updated_at'] = $todayTimestamp;
+            $combinedData['updated_at'] = $todayTimestamp;
 
-                $combinedRef = $ytMetricCollection->document('data');
+            $combinedRef = $ytMetricCollection->document('data');
 
-                $combinedRef->set(['updated_at' => $todayTimestamp], ['merge' => true]);
+            $combinedRef->set(['updated_at' => $todayTimestamp], ['merge' => true]);
 
-                $combinedRef->collection('metric_data')->document($todayTimestamp)->set(
-                    $combinedData
+            $combinedRef->collection('metric_data')->document($todayTimestamp)->set(
+                $combinedData
+            );
+
+            $isEndOfMonth = Carbon::now()->isLastOfMonth();
+
+            if ($isEndOfMonth) {
+                $monthlyRef = $combinedRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+
+                $monthlyRef->set(
+                    $combinedData,
+                    [
+                        'merge' => true
+                    ]
                 );
+            }
 
-                foreach ($statistic as $key => $value) {
+            foreach ($statistic as $key => $value) {
 
-                    $formattedKey = str_replace(' ', '_', $key);
-                    $docRef = $ytMetricCollection->document(strtolower($formattedKey));
+                $formattedKey = str_replace(' ', '_', $key);
+                $docRef = $ytMetricCollection->document(strtolower($formattedKey));
 
-                    $docRef->set(['updated_at' => $todayTimestamp]);
+                $docRef->set(['updated_at' => $todayTimestamp]);
 
-                    $value['updated_at'] = $todayTimestamp;
+                $value['updated_at'] = $todayTimestamp;
 
-                    $isEndOfMonth = Carbon::now()->isLastOfMonth();
+                if ($isEndOfMonth) {
+                    $monthlyRef = $docRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                    if($isEndOfMonth) {
-                        $monthlyRef = $docRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
-
-                        $monthlyRef->set(
-                            $value, [
-                                'merge' => true
-                            ]
-                        );
-                    }
-
-                    $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
-                    $metricDataCol->set(
+                    $monthlyRef->set(
                         $value,
                         [
                             'merge' => true
@@ -243,16 +249,25 @@ class YoutubeMetricsCron extends Command
                     );
                 }
 
-                $trackingDocRef->set([
-                    'date' => $today
-                ]);
+                $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
+                $metricDataCol->set(
+                    $value,
+                    [
+                        'merge' => true
+                    ]
+                );
+            }
 
-                echo json_encode($statistic);
+            $trackingDocRef->set([
+                'date' => $today
+            ]);
+
+            echo json_encode($statistic);
         } catch (ModelNotFoundException $e) {
             $this->error('No tokens found, please reauth the youtube account');
 
             return 1;
-        } catch (GoogleException|Exception $e) {
+        } catch (GoogleException | Exception $e) {
             $this->error("Exception caught:{$e->getMessage()}");
 
             return 1;
