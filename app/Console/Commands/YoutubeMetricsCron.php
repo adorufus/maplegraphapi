@@ -11,6 +11,7 @@ use Google\Service\Exception;
 use Google\Service\YouTube;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use DateTimeZone;
 
 class YoutubeMetricsCron extends Command
 {
@@ -70,6 +71,11 @@ class YoutubeMetricsCron extends Command
 //        print_r($playlistIds);
 
         return $playlistIds;
+    }
+
+    function convertToGmt($dateTime) {
+        $dateTime->setTimezone(new DateTimeZone('Asia/Jakarta'));
+        return $dateTime;
     }
 
     /**
