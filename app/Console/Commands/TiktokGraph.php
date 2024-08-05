@@ -233,6 +233,8 @@ class TiktokGraph extends Command
 
         $total = [];
 
+        print_r(count($insightData));
+
 
         if ($type != 'data') {
             foreach ($insightData as $insight) {
