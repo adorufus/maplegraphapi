@@ -188,6 +188,8 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
+        $combinedData["media_count"] = count($data);
+
         echo "kontol " . json_encode($rewindInsightData) . "\n";
 
 
@@ -245,6 +247,8 @@ class TiktokGraph extends Command
                     'shares' => $shares += $insight['share_count'],
                 ];
             }
+
+            $total['media_count'] = count($insightData);
         } else {
             // echo "insight data" . $insightData;
             $total = [
@@ -252,10 +256,9 @@ class TiktokGraph extends Command
                 'comments' => $insightData['comment_count'],
                 'likes' => $insightData['like_count'],
                 'shares' => $insightData['share_count'],
+                'media_count' => $insightData['media_count']
             ];
         }
-
-        $total['media_count'] = count($insightData);
 
         print_r($total);
 
