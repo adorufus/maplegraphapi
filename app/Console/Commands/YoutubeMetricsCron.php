@@ -221,7 +221,7 @@ class YoutubeMetricsCron extends Command
             if ($isEndOfMonth) {
                 $monthlyRef = $combinedRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                $monthlyRef->set(
+                $monthlyRef->set( 
                     $combinedData,
                     [
                         'merge' => true
