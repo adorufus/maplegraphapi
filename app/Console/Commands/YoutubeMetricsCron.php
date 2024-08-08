@@ -130,6 +130,9 @@ class YoutubeMetricsCron extends Command
                     $lastStorageDate = $lastStorageDateTime;
                 }
             }
+
+            $allFetchedVideoIds = [];
+
             foreach ($playlists as $playlist) {
                 do {
                     try {
@@ -146,7 +149,9 @@ class YoutubeMetricsCron extends Command
                     $videoIds = [];
 
                     foreach ($response->getItems() as $item) {
-                        $videoIds[] = $item->getSnippet()->getResourceId()->getVideoId();
+                        $videoId = $item->getSnippet()->getResourceId()->getVideoId();
+                        $videoIds[] = $videoId;
+                        $allFetchedVideoIds[] = $videoId;
                     }
 
                     $items[] = [
@@ -158,6 +163,8 @@ class YoutubeMetricsCron extends Command
 
                 } while ($pageToken);
             }
+
+            print_r("Fetched Video id's: " . print_r($allFetchedVideoIds, true));
 
             $combinedData = [
                 'views' => 0,
@@ -226,66 +233,66 @@ class YoutubeMetricsCron extends Command
             print_r($combinedData);
 
 
-            $ytMetricCollection = $firestore->collection('yt_metrics');
-            $todayTimestamp = new Timestamp(new \DateTime());
+            // $ytMetricCollection = $firestore->collection('yt_metrics');
+            // $todayTimestamp = new Timestamp(new \DateTime());
 
-            $combinedData['updated_at'] = $todayTimestamp;
+            // $combinedData['updated_at'] = $todayTimestamp;
 
-            $combinedRef = $ytMetricCollection->document('data');
+            // $combinedRef = $ytMetricCollection->document('data');
 
-            $combinedRef->set(['updated_at' => $todayTimestamp], ['merge' => true]);
+            // $combinedRef->set(['updated_at' => $todayTimestamp], ['merge' => true]);
 
-            $combinedRef->collection('metric_data')->document($todayTimestamp)->set(
-                $combinedData
-            );
+            // $combinedRef->collection('metric_data')->document($todayTimestamp)->set(
+            //     $combinedData
+            // );
 
-            $isEndOfMonth = Carbon::now()->isLastOfMonth();
+            // $isEndOfMonth = Carbon::now()->isLastOfMonth();
 
-            if ($isEndOfMonth) {
-                $monthlyRef = $combinedRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+            // if ($isEndOfMonth) {
+            //     $monthlyRef = $combinedRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                $monthlyRef->set(
-                    $combinedData,
-                    [
-                        'merge' => true
-                    ]
-                );
-            }
+            //     $monthlyRef->set(
+            //         $combinedData,
+            //         [
+            //             'merge' => true
+            //         ]
+            //     );
+            // }
 
-            foreach ($statistic as $key => $value) {
+            // foreach ($statistic as $key => $value) {
 
-                $formattedKey = str_replace(' ', '_', $key);
-                $docRef = $ytMetricCollection->document(strtolower($formattedKey));
+            //     $formattedKey = str_replace(' ', '_', $key);
+            //     $docRef = $ytMetricCollection->document(strtolower($formattedKey));
 
-                $docRef->set(['updated_at' => $todayTimestamp]);
+            //     $docRef->set(['updated_at' => $todayTimestamp]);
 
-                $value['updated_at'] = $todayTimestamp;
+            //     $value['updated_at'] = $todayTimestamp;
 
-                if ($isEndOfMonth) {
-                    $monthlyRef = $docRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
+            //     if ($isEndOfMonth) {
+            //         $monthlyRef = $docRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                    $monthlyRef->set(
-                        $value,
-                        [
-                            'merge' => true
-                        ]
-                    );
-                }
+            //         $monthlyRef->set(
+            //             $value,
+            //             [
+            //                 'merge' => true
+            //             ]
+            //         );
+            //     }
 
-                $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
-                $metricDataCol->set(
-                    $value,
-                    [
-                        'merge' => true
-                    ]
-                );
-            }
+            //     $metricDataCol = $docRef->collection('metric_data')->document($todayTimestamp);
+            //     $metricDataCol->set(
+            //         $value,
+            //         [
+            //             'merge' => true
+            //         ]
+            //     );
+            // }
 
-            $trackingDocRef->set([
-                'date' => $today
-            ]);
+            // $trackingDocRef->set([
+            //     'date' => $today
+            // ]);
 
-            echo json_encode($statistic);
+            // echo json_encode($statistic);
         } catch (ModelNotFoundException $e) {
             $this->error('No tokens found, please reauth the youtube account');
 
