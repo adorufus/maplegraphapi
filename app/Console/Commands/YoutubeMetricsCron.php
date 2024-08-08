@@ -7,7 +7,8 @@ use Carbon\Carbon;
 use Google\Cloud\Core\Exception\GoogleException;
 use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
-use Google\Service\Exception;
+// use Google\Service\Exception;
+use Exception;
 use Google\Service\YouTube;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -131,11 +132,16 @@ class YoutubeMetricsCron extends Command
             }
             foreach ($playlists as $playlist) {
                 do {
-                    $response = $service->playlistItems->listPlaylistItems('snippet', [
-                        'playlistId' => $playlist['id'],
-                        'maxResults' => 100,
-                        'pageToken' => $pageToken
-                    ]);
+                    try {
+                        $response = $service->playlistItems->listPlaylistItems('snippet', [
+                            'playlistId' => $playlist['id'],
+                            'maxResults' => 100,
+                            'pageToken' => $pageToken
+                        ]);
+                    } catch (Exception $e) {
+                        error_log('Error fetching playlist items: ' . $e->getMessage());
+                        continue;
+                    }
 
                     $videoIds = [];
 
@@ -165,10 +171,14 @@ class YoutubeMetricsCron extends Command
                 $chunks = array_chunk($item['videos_id'], 50);
 
                 foreach ($chunks as $chunk) {
-                    $response = $service->videos->listVideos('statistics', [
-                        'id' => implode(',', $chunk)
-                    ]);
-                    
+                    try {
+                        $response = $service->videos->listVideos('statistics', [
+                            'id' => implode(',', $chunk)
+                        ]);
+                    } catch (Exception $e) {
+                        error_log('Error fetching video statistics: ' . $e->getMessage());
+                    }
+
                     print_r($statistic, true);
 
                     if (!isset($statistic[$item['playlist_name']])) {
@@ -183,6 +193,9 @@ class YoutubeMetricsCron extends Command
 
                     foreach ($response->getItems() as $videoStats) {
                         $stats = $videoStats->getStatistics();
+
+                        error_log('Video stats: ' . print_r($stats, true));
+
                         $views = isset($stats['viewCount']) ? $stats['viewCount'] : 0;
                         $likes = isset($stats['likeCount']) ? $stats['likeCount'] : 0;
                         $dislikes = isset($stats['dislikeCount']) ? $stats['dislikeCount'] : 0;
@@ -204,6 +217,13 @@ class YoutubeMetricsCron extends Command
                 }
             }
 
+            error_log('Combined statistics: ' . print_r($combinedData, true));
+            error_log('Detailed statistics per playlist: ' . print_r($statistic, true));
+
+            // You can also output the final data to the user or a file
+            echo 'Final Statistics: ';
+            print_r($combinedData);
+
 
             $ytMetricCollection = $firestore->collection('yt_metrics');
             $todayTimestamp = new Timestamp(new \DateTime());
@@ -223,7 +243,7 @@ class YoutubeMetricsCron extends Command
             if ($isEndOfMonth) {
                 $monthlyRef = $combinedRef->collection('monthly_metric_data')->document(new Timestamp($this->convertToGmt(new \DateTime('now'))));
 
-                $monthlyRef->set( 
+                $monthlyRef->set(
                     $combinedData,
                     [
                         'merge' => true
