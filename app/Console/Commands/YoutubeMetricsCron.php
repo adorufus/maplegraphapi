@@ -177,6 +177,7 @@ class YoutubeMetricsCron extends Command
                         ]);
                     } catch (Exception $e) {
                         error_log('Error fetching video statistics: ' . $e->getMessage());
+                        continue;
                     }
 
                     print_r($statistic, true);
