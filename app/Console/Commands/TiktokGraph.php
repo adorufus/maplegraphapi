@@ -88,6 +88,7 @@ class TiktokGraph extends Command
 
             sleep(1);
         } while ($hasMore);
+        
 
         $this->calculate($data);
 

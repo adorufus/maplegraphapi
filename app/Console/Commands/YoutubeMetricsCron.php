@@ -168,6 +168,8 @@ class YoutubeMetricsCron extends Command
                     $response = $service->videos->listVideos('statistics', [
                         'id' => implode(',', $chunk)
                     ]);
+                    
+                    print_r($statistic, true);
 
                     if (!isset($statistic[$item['playlist_name']])) {
                         $statistic[$item['playlist_name']] = [
