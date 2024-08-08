@@ -139,7 +139,7 @@ class YoutubeMetricsCron extends Command
                             'pageToken' => $pageToken
                         ]);
                     } catch (Exception $e) {
-                        error_log('Error fetching playlist items: ' . $e->getMessage());
+                        print_r('Error fetching playlist items: ' . $e->getMessage());
                         continue;
                     }
 
@@ -176,7 +176,7 @@ class YoutubeMetricsCron extends Command
                             'id' => implode(',', $chunk)
                         ]);
                     } catch (Exception $e) {
-                        error_log('Error fetching video statistics: ' . $e->getMessage());
+                        print_r('Error fetching video statistics: ' . $e->getMessage());
                         continue;
                     }
 
@@ -195,7 +195,7 @@ class YoutubeMetricsCron extends Command
                     foreach ($response->getItems() as $videoStats) {
                         $stats = $videoStats->getStatistics();
 
-                        error_log('Video stats: ' . print_r($stats, true));
+                        print_r('Video stats: ' . print_r($stats, true));
 
                         $views = isset($stats['viewCount']) ? $stats['viewCount'] : 0;
                         $likes = isset($stats['likeCount']) ? $stats['likeCount'] : 0;
@@ -218,8 +218,8 @@ class YoutubeMetricsCron extends Command
                 }
             }
 
-            error_log('Combined statistics: ' . print_r($combinedData, true));
-            error_log('Detailed statistics per playlist: ' . print_r($statistic, true));
+            print_r('Combined statistics: ' . print_r($combinedData, true));
+            print_r('Detailed statistics per playlist: ' . print_r($statistic, true));
 
             // You can also output the final data to the user or a file
             echo 'Final Statistics: ';
