@@ -225,12 +225,12 @@ class YoutubeMetricsCron extends Command
                 }
             }
 
-            print_r('Combined statistics: ' . print_r($combinedData, true));
-            print_r('Detailed statistics per playlist: ' . print_r($statistic, true));
+            // print_r('Combined statistics: ' . print_r($combinedData, true));
+            // print_r('Detailed statistics per playlist: ' . print_r($statistic, true));
 
-            // You can also output the final data to the user or a file
-            echo 'Final Statistics: ';
-            print_r($combinedData);
+            // // You can also output the final data to the user or a file
+            // echo 'Final Statistics: ';
+            // print_r($combinedData);
 
 
             // $ytMetricCollection = $firestore->collection('yt_metrics');
