@@ -113,6 +113,7 @@ class TiktokGraph extends Command
         $trickroomInsightData = [];
         $unsceneInsightData = [];
         $playroomInsightData = [];
+        $btcInsightData = [];
 
         foreach ($data as $item) {
             $caption = $item['title'];
@@ -158,13 +159,13 @@ class TiktokGraph extends Command
                 echo "trickroom \n";
             }
 
-            if (str_contains($caption, '#CAN')) {
+            if (str_contains($caption, '#CAN') || str_contains($caption, 'CAN!')) {
                 $canInsightData = array_merge($canInsightData, [$item]);
 
                 echo "can \n";
             }
 
-            if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE')) {
+            if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE') || str_contains($caption, '#unscene')) {
                 $unsceneInsightData = array_merge($unsceneInsightData, [$item]);
                 echo "unscene \n";
             }
@@ -173,6 +174,12 @@ class TiktokGraph extends Command
                 $playroomInsightData = array_merge($playroomInsightData, [$item]);
 
                 echo "playroom \n";
+            }
+
+            if (str_contains($caption, '#BehindTheCurtain')) {
+                $btcInsightData = array_merge($btcInsightData, [$item]);
+
+                echo "btc \n";
             }
 
             // echo json_encode($item) . "\n";
