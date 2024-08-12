@@ -189,9 +189,7 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
-        $combinedData["media_count"] = count($data);
-
-        echo "kontol " . json_encode($rewindInsightData) . "\n";
+        $combinedData["media_count"] = count($rewindInsightData) + count($bbnInsightData) + count($jkmInsightData) + count($dixiInsightData) + count($wanderInsightData) + count($asmrInsightData) + count($trickroomInsightData) + count($canInsightData) + count($unsceneInsightData) + count($playroomInsightData);
 
 
         $compiledSegmentsInsights['rewind'] = $rewindInsightData;
