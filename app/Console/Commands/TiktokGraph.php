@@ -209,6 +209,7 @@ class TiktokGraph extends Command
         $compiledSegmentsInsights['can'] = $canInsightData;
         $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
         $compiledSegmentsInsights['playroom'] = $playroomInsightData;
+        $compiledSegmentsInsights['btc'] = $btcInsightData;
 
         $this->calcAndSendToFirebase($combinedData, 'data');
         $this->calcAndSendToFirebase($compiledSegmentsInsights['rewind'], 'rewind');
@@ -221,6 +222,7 @@ class TiktokGraph extends Command
         $this->calcAndSendToFirebase($compiledSegmentsInsights['unscene'], 'unscene');
         $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
         $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['btc'], 'btc');
     }
 
     function convertToGmt($dateTime)
