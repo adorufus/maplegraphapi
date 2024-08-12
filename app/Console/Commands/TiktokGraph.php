@@ -121,65 +121,65 @@ class TiktokGraph extends Command
             if (str_contains($caption, '#Rewind') || str_contains($caption, '#REWIND') || str_contains($caption, '#rewind')) {
                 $rewindInsightData = array_merge($rewindInsightData, [$item]);
 
-                echo "rewind \n";
+                echo "rewind \n" . count($rewindInsightData);
             }
 
             if (str_contains($caption, '#BreakingBadNews')) {
                 $bbnInsightData = array_merge($bbnInsightData, [$item]);
-                echo "bbn \n";
+                echo "bbn \n" .  count($bbnInsightData);
             }
 
             if (str_contains($caption, '#JikaKukuhMenjadi')) {
                 $jkmInsightData = array_merge($jkmInsightData, [$item]);
 
-                echo "jkm \n";
+                echo "jkm \n" . count($jkmInsightData);
             }
 
             if (str_contains($caption, '#Dixi') || str_contains($caption, '#DIXI')) {
                 $dixiInsightData = array_merge($dixiInsightData, [$item]);
 
-                echo "dixi \n";
+                echo "dixi \n" . count($dixiInsightData);
             }
 
             if (str_contains($caption, '#Wander') || str_contains($caption, '#wander')) {
                 $wanderInsightData = array_merge($wanderInsightData, [$item]);
 
-                echo "wander \n";
+                echo "wander \n" . count($wanderInsightData);
             }
 
             if (str_contains($caption, '#ASMR')) {
                 $asmrInsightData = array_merge($asmrInsightData, [$item]);
 
-                echo "asmr \n";
+                echo "asmr \n" . count($asmrInsightData);
             }
 
             if (str_contains($caption, '#TrickRoom') || str_contains($caption, '#Trickroom') || str_contains($caption, '#trickroom')) {
                 $trickroomInsightData = array_merge($trickroomInsightData, [$item]);
 
-                echo "trickroom \n";
+                echo "trickroom \n" . count($trickroomInsightData);
             }
 
             if (str_contains($caption, '#CAN') || str_contains($caption, 'CAN!')) {
                 $canInsightData = array_merge($canInsightData, [$item]);
 
-                echo "can \n";
+                echo "can \n" . count($canInsightData);
             }
 
             if (str_contains($caption, '#Unscene') || str_contains($caption, '#UNSCENE') || str_contains($caption, '#unscene')) {
                 $unsceneInsightData = array_merge($unsceneInsightData, [$item]);
-                echo "unscene \n";
+                echo "unscene \n" . count($unsceneInsightData);
             }
 
             if (str_contains($caption, '#Playroom') || str_contains($caption, '#PlayRoom')) {
                 $playroomInsightData = array_merge($playroomInsightData, [$item]);
 
-                echo "playroom \n";
+                echo "playroom \n" . count($playroomInsightData);
             }
 
             if (str_contains($caption, '#BehindTheCurtain')) {
                 $btcInsightData = array_merge($btcInsightData, [$item]);
 
-                echo "btc \n";
+                echo "btc \n" . count($btcInsightData);
             }
 
             // echo json_encode($item) . "\n";
@@ -196,7 +196,7 @@ class TiktokGraph extends Command
             // echo json_encode($combinedData);
         }
 
-        $combinedData["media_count"] = count($rewindInsightData) + count($bbnInsightData) + count($jkmInsightData) + count($dixiInsightData) + count($wanderInsightData) + count($asmrInsightData) + count($trickroomInsightData) + count($canInsightData) + count($unsceneInsightData) + count($playroomInsightData);
+        $combinedData["media_count"] = count($rewindInsightData) + count($bbnInsightData) + count($jkmInsightData) + count($dixiInsightData) + count($wanderInsightData) + count($asmrInsightData) + count($trickroomInsightData) + count($canInsightData) + count($unsceneInsightData) + count($playroomInsightData) + count($btcInsightData);
 
 
         $compiledSegmentsInsights['rewind'] = $rewindInsightData;
