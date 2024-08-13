@@ -90,6 +90,8 @@ class TiktokGraph extends Command
             echo $reason->getMessage();
         });
 
+        $refreshTokenResponse->wait();
+
         // do {
         //     $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
