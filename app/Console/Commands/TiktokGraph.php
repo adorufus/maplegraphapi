@@ -77,7 +77,7 @@ class TiktokGraph extends Command
         ]);
 
         try {
-            $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel, $httpClient, &$cursor, &$count, &$data, &$hasMore, $firstIndexTokenModel) {
+            $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel, $httpClient, &$cursor, &$count, &$data, &$hasMore, $firstIndexTokenModel, &$bodyData) {
                 echo "memek";
                 $body = $res->getBody();
                 $responseData = json_decode($body, true);
