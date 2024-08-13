@@ -10,6 +10,7 @@ use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
+use Log;
 
 class TiktokGraph extends Command
 {
@@ -75,22 +76,22 @@ class TiktokGraph extends Command
             ]
         ]);
 
-        $refreshTokenResponse->then(function ($res) {
-            echo "memek";
-            $body = $res->getBody();
-            $responseData = json_decode($body, true);
-            print_r($responseData);
-
-        }, function ($ex) {
-            print_r($ex->getMessage(), true);
-            if ($ex->hasResponse()) {
-                echo $ex->getResponse()->getBody()->getContents();
-            }
-        })->reject(function ($reason) {
-            echo $reason->getMessage();
-        });
-
-        $refreshTokenResponse->wait();
+        try {
+            $refreshTokenResponse->then(function ($res) {
+                echo "memek";
+                $body = $res->getBody();
+                $responseData = json_decode($body, true);
+                print_r($responseData);
+    
+            }, function ($ex) {
+                print_r($ex->getMessage(), true);
+                if ($ex->hasResponse()) {
+                    echo $ex->getResponse()->getBody()->getContents();
+                }
+            })->wait();
+        } catch (\Exception $e) {
+            Log::error('Request failed: ' . $e->getMessage());
+        }
 
         // do {
         //     $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
