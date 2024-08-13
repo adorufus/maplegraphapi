@@ -77,7 +77,7 @@ class TiktokGraph extends Command
         ]);
 
         try {
-            $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel) {
+            $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel, $httpClient, &$cursor, &$count, &$data, &$hasMore, $firstIndexTokenModel) {
                 echo "memek";
                 $body = $res->getBody();
                 $responseData = json_decode($body, true);
@@ -92,6 +92,38 @@ class TiktokGraph extends Command
                     'scope' => $responseData['scope'],
                     'token_type' => $responseData['token_type'],
                 ]);
+
+                do {
+                    $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
+        
+                    if ($cursor != '') {
+                        $bodyData['cursor'] = $cursor;
+                    }
+        
+                    $response = $httpClient->post($url, [
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
+                            'Content-Type' => 'application/json'
+                        ],
+                        'json' => $bodyData
+                    ]);
+        
+                    $body = json_decode($response->getBody()->getContents(), true);
+        
+                    // Merge videos data into $data array
+                    $data = array_merge($data, $body['data']['videos']);
+        
+                    $count += 1;
+        
+                    echo 'array pushed ' . $count . "\n";
+                    $hasMore = $body['data']['has_more'];
+                    $cursor = $body['data']['cursor'];
+        
+                    sleep(1);
+                } while ($hasMore);
+        
+        
+                $this->calculate($data);
     
             }, function ($ex) {
                 print_r($ex->getMessage(), true);
@@ -102,38 +134,6 @@ class TiktokGraph extends Command
         } catch (\Exception $e) {
             Log::error('Request failed: ' . $e->getMessage());
         }
-
-        // do {
-        //     $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
-
-        //     if ($cursor != '') {
-        //         $bodyData['cursor'] = $cursor;
-        //     }
-
-        //     $response = $httpClient->post($url, [
-        //         'headers' => [
-        //             'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
-        //             'Content-Type' => 'application/json'
-        //         ],
-        //         'json' => $bodyData
-        //     ]);
-
-        //     $body = json_decode($response->getBody()->getContents(), true);
-
-        //     // Merge videos data into $data array
-        //     $data = array_merge($data, $body['data']['videos']);
-
-        //     $count += 1;
-
-        //     echo 'array pushed ' . $count . "\n";
-        //     $hasMore = $body['data']['has_more'];
-        //     $cursor = $body['data']['cursor'];
-
-        //     sleep(1);
-        // } while ($hasMore);
-
-
-        // $this->calculate($data);
 
     }
 
