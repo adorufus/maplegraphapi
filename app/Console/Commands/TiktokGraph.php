@@ -76,6 +76,7 @@ class TiktokGraph extends Command
         ]);
 
         $refreshTokenResponse->then(function ($res) {
+            echo "memek";
             $body = $res->getBody();
             $responseData = json_decode($body, true);
             print_r($responseData);
