@@ -48,7 +48,7 @@ class GraphCron extends Command
 
     public function segmentedMetrics($data): array
     {
-        $hastagRegex = '/#(Rewind|TrickRoom|Wander|BreakingBadNews|CAN!|DIXI|Unscene|PlayRoom|ASMR|JikaKukuhMenjadi|CAN)\b/i';
+        $hastagRegex = '/#(Rewind|TrickRoom|Wander|BreakingBadNews|CAN!|DIXI|Unscene|PlayRoom|ASMR|JikaKukuhMenjadi|CAN|BehindTheCurtain)\b/i';
         $captions = [];
         $allHastags = [];
 
