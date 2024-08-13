@@ -60,37 +60,66 @@ class TiktokGraph extends Command
             'max_count' => 20
         ];
 
-        do {
-            $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
+        $refreshTokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
 
-            if ($cursor != '') {
-                $bodyData['cursor'] = $cursor;
+        $refreshTokenResponse = $httpClient->postAsync($refreshTokenUrl, [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Cache-Control' => 'no-cache'
+            ],
+            'form_params' => [
+                'client_key' => env('TIKTOK_CLIENT_KEY'),
+                'client_secret' => env('TIKTOK_CLIENT_SECRET'),
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $firstIndexTokenModel['refresh_token'],
+            ]
+        ]);
+
+        $refreshTokenResponse->then(function ($res) {
+            $body = $res->getBody();
+            $responseData = json_decode($body, true);
+            print_r($responseData);
+
+        }, function ($ex) {
+            print_r($ex->getMessage(), true);
+            if ($ex->hasResponse()) {
+                echo $ex->getResponse()->getBody()->getContents();
             }
+        })->reject(function ($reason) {
+            echo $reason->getMessage();
+        });
 
-            $response = $httpClient->post($url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
-                    'Content-Type' => 'application/json'
-                ],
-                'json' => $bodyData
-            ]);
+        // do {
+        //     $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
 
-            $body = json_decode($response->getBody()->getContents(), true);
+        //     if ($cursor != '') {
+        //         $bodyData['cursor'] = $cursor;
+        //     }
 
-            // Merge videos data into $data array
-            $data = array_merge($data, $body['data']['videos']);
+        //     $response = $httpClient->post($url, [
+        //         'headers' => [
+        //             'Authorization' => 'Bearer ' . $firstIndexTokenModel['access_token'],
+        //             'Content-Type' => 'application/json'
+        //         ],
+        //         'json' => $bodyData
+        //     ]);
 
-            $count += 1;
+        //     $body = json_decode($response->getBody()->getContents(), true);
 
-            echo 'array pushed ' . $count . "\n";
-            $hasMore = $body['data']['has_more'];
-            $cursor = $body['data']['cursor'];
+        //     // Merge videos data into $data array
+        //     $data = array_merge($data, $body['data']['videos']);
 
-            sleep(1);
-        } while ($hasMore);
-        
+        //     $count += 1;
 
-        $this->calculate($data);
+        //     echo 'array pushed ' . $count . "\n";
+        //     $hasMore = $body['data']['has_more'];
+        //     $cursor = $body['data']['cursor'];
+
+        //     sleep(1);
+        // } while ($hasMore);
+
+
+        // $this->calculate($data);
 
     }
 
@@ -126,7 +155,7 @@ class TiktokGraph extends Command
 
             if (str_contains($caption, '#BreakingBadNews')) {
                 $bbnInsightData = array_merge($bbnInsightData, [$item]);
-                echo "bbn \n" .  count($bbnInsightData);
+                echo "bbn \n" . count($bbnInsightData);
             }
 
             if (str_contains($caption, '#JikaKukuhMenjadi')) {
