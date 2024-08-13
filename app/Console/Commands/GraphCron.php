@@ -172,6 +172,7 @@ class GraphCron extends Command
         $trickroomInsightData = [];
         $unsceneInsightData = [];
         $playroomInsightData = [];
+        $btcInsightData = [];
 
         $baseUrl = 'https://graph.facebook.com/v18.0';
 
@@ -261,6 +262,12 @@ class GraphCron extends Command
 
                             echo "playroom";
                         }
+
+                        if(str_contains($caption, '#BehindTheCurtain')){
+                            $this->getInsightData($baseUrl, $data, $i, $metric, $token, $client, $btcInsightData);
+
+                            echo "btc";
+                        }
                     }
                 } catch (GuzzleException $ge) {
                     echo $ge->getMessage();
@@ -278,6 +285,7 @@ class GraphCron extends Command
         $compiledSegmentsInsights['can'] = $canInsightData;
         $compiledSegmentsInsights['unscene'] = $unsceneInsightData;
         $compiledSegmentsInsights['playroom'] = $playroomInsightData;
+        $compiledSegmentsInsights['btc'] = $btcInsightData;
 
         $this->calcAndSendToFirebase($insightData, 'data');
         sleep(2);
@@ -299,6 +307,8 @@ class GraphCron extends Command
         $this->calcAndSendToFirebase($compiledSegmentsInsights['playroom'], 'playroom');
         sleep(2);
         $this->calcAndSendToFirebase($compiledSegmentsInsights['trickroom'], 'trickroom');
+        sleep(2);
+        $this->calcAndSendToFirebase($compiledSegmentsInsights['btc'], 'btc');
 
 
         $collectionRef = $this->firestore->collection('metrics_logs');
