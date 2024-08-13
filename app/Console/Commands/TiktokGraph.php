@@ -77,11 +77,21 @@ class TiktokGraph extends Command
         ]);
 
         try {
-            $refreshTokenResponse->then(function ($res) {
+            $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel) {
                 echo "memek";
                 $body = $res->getBody();
                 $responseData = json_decode($body, true);
                 print_r($responseData);
+
+                $tiktokTokenModel->updateOrCreate(['id' => 1], [
+                    'access_token' => $responseData['access_token'],
+                    'expires_in' => $responseData['expires_in'],
+                    'open_id' => $responseData['open_id'],
+                    'refresh_expires_in' => $responseData['refresh_expires_in'],
+                    'refresh_token' => $responseData['refresh_token'],
+                    'scope' => $responseData['scope'],
+                    'token_type' => $responseData['token_type'],
+                ]);
     
             }, function ($ex) {
                 print_r($ex->getMessage(), true);
