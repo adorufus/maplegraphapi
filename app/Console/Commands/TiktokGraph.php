@@ -97,7 +97,7 @@ class TiktokGraph extends Command
                     });
                     // Continue with the do-while loop
                 } catch (\Exception $e) {
-                    Log::error('Update failed: ' . $e->getMessage());
+                    print_r('Update failed: ' . $e->getMessage());
                 }
 
                 do {
@@ -139,7 +139,7 @@ class TiktokGraph extends Command
                 }
             })->wait();
         } catch (\Exception $e) {
-            Log::error('Request failed: ' . $e->getMessage());
+            print_r('Request failed: ' . $e->getMessage());
         }
 
     }
