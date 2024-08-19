@@ -9,6 +9,7 @@ use Exception;
 use Google\Cloud\Core\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use Log;
 
@@ -78,20 +79,26 @@ class TiktokGraph extends Command
 
         try {
             $refreshTokenResponse->then(function ($res) use ($tiktokTokenModel, $httpClient, &$cursor, &$count, &$data, &$hasMore, $firstIndexTokenModel, &$bodyData) {
-                echo "memek";
                 $body = $res->getBody();
                 $responseData = json_decode($body, true);
                 print_r($responseData);
 
-                $tiktokTokenModel->updateOrCreate(['id' => 1], [
-                    'access_token' => $responseData['access_token'],
-                    'expires_in' => $responseData['expires_in'],
-                    'open_id' => $responseData['open_id'],
-                    'refresh_expires_in' => $responseData['refresh_expires_in'],
-                    'refresh_token' => $responseData['refresh_token'],
-                    'scope' => $responseData['scope'],
-                    'token_type' => $responseData['token_type'],
-                ]);
+                try {
+                    DB::transaction(function () use ($tiktokTokenModel, $responseData) {
+                        $tiktokTokenModel->updateOrCreate(['id' => 1], [
+                            'access_token' => $responseData['access_token'],
+                            'expires_in' => $responseData['expires_in'],
+                            'open_id' => $responseData['open_id'],
+                            'refresh_expires_in' => $responseData['refresh_expires_in'],
+                            'refresh_token' => $responseData['refresh_token'],
+                            'scope' => $responseData['scope'],
+                            'token_type' => $responseData['token_type'],
+                        ]);
+                    });
+                    // Continue with the do-while loop
+                } catch (\Exception $e) {
+                    Log::error('Update failed: ' . $e->getMessage());
+                }
 
                 do {
                     $url = 'https://open.tiktokapis.com/v2/video/list/?fields=title,like_count,comment_count,share_count,view_count';
