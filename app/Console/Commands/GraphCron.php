@@ -54,6 +54,7 @@ class GraphCron extends Command
 
 
         foreach ($data as $d) {
+            print_r($d, true);
             $captions[] = $d['caption'];
         }
 
@@ -188,7 +189,7 @@ class GraphCron extends Command
         for ($i = 0; $i < $dataLength; $i++) {
             if ($data[$i]['media_type'] == 'VIDEO') {
 
-                $segments = $this->segmentedMetrics($data);
+                // $segments = $this->segmentedMetrics($data);
 
                 var_dump($i);
                 $metric = 'reach,total_interactions,comments,ig_reels_avg_watch_time,ig_reels_video_view_total_time,likes,plays,reach,saved,shares';
